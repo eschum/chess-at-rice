@@ -3,12 +3,14 @@
 //app to draw polymorphic shapes on canvas
 let app;
 
+let socket;
+
 //Time interval for Updating chess board: 5000ms = 5 seconds.
 let update_interval = 5000;
 
 //Global variables re: chess board size.
-let boardImgFile = "chessboard-768.png";
-let boardSide = 768;
+let boardImgFile = "chessboard-600.png";
+let boardSide = 600;
 let spaceLen = boardSide / 8;
 
 //Global gameplay status
@@ -90,6 +92,15 @@ function createApp(canvas) {
  * Define action on window loading.
  */
 window.onload = function() {
+    socket = new WebSocket("ws://" + location.hostname + ":" + location.port +
+        "/chess");
+    socket.addEventListener('message', function (event) {
+        onMessage(event);
+
+        console.log('Message from server ', event.data);
+    });
+
+
     app = createApp(document.querySelector("canvas"));
 
     //Buttons for interacting with the game.
@@ -106,6 +117,7 @@ window.onload = function() {
     setInterval(updateBoard, update_interval);
 };
 
+
 /**
  * Event-listener wrapper to encapsulate any required event listeners.
  */
@@ -113,6 +125,28 @@ document.addEventListener('DOMContentLoaded', function () {
     let can = document.querySelector("canvas");
     can.addEventListener("click", reportClick, false);
 });
+
+/**
+ * Handler for receiving all messages.
+ * @param msg
+ */
+function onMessage(msg) {
+    let obj = JSON.parse(msg.data);
+
+    switch(obj.type) {
+        case "player":
+            let log = document.getElementById('scrollBox');
+            let align = playerOneTurn ? "style=\"text-align:left\"" : "style=\"text-align:right\"";
+            let turn = playerOneTurn ? "Player 1: " : "Player 2: ";
+            log.innerHTML += "<p class='log'" + align + ">" + obj.name + " Connected<\p>";
+            let blank_log = document.querySelector(".scrollBox p:nth-last-child(1)");
+            blank_log.remove();
+            log.scrollTop = log.scrollHeight;
+            break;
+        default:
+            break;
+    }
+}
 
 /**
  * load ball at a location specified by model on the canvas
@@ -297,7 +331,9 @@ function sendMove() {
         //send the move to the model. A stub for now that just changes the player.
         let log = document.querySelector(".scrollBox p:nth-last-child(1)");
         log.innerHTML += " (sent)";
-        //would need to verify move correctness, etc.
+
+        //Send message.
+        socket.send(moveOrigin + "," + moveDestination);
 
         playerOneTurn = !playerOneTurn;
         moveOrigin = null;

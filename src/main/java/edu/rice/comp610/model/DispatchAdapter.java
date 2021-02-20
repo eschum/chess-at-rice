@@ -5,16 +5,24 @@ import edu.rice.comp610.model.ball.Fish;
 import edu.rice.comp610.model.ball.PaintObject;
 import edu.rice.comp610.model.cmd.SwitchStrategyCommand;
 import edu.rice.comp610.model.strategy.*;
+import org.eclipse.jetty.websocket.api.Session;
+
 import java.awt.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static com.heroku.api.http.Http.ContentType.JSON;
+
 /**
  * This adapter interfaces with the view (paint objects) and the controller.
  */
 public class DispatchAdapter {
+    private static Session playerOne;
+    private static Session playerTwo;
+
+
     private static PropertyChangeSupport pcs;
     private static Point dims;
     private final HashMap<String, PaintObject> nameIndex;  //Keep a hashmap to associate individual objects.
@@ -28,6 +36,9 @@ public class DispatchAdapter {
      * Constructor call.
      */
     public DispatchAdapter() {
+        playerOne = null;
+        playerTwo = null;
+
         pcs = new PropertyChangeSupport(this);
         //Initialize counters for our object counters and our hashmap to have name references to all.
         fishCounter = 0;
@@ -38,6 +49,24 @@ public class DispatchAdapter {
         fishFishCollisionStrategy = BounceCollision.getInstance();
         ballFishCollisionStrategy = BounceCollision.getInstance();
     }
+
+    /**
+     * Connect Players: Method to associate our connection
+     * @param user
+     * @return
+     */
+    public static int connectPlayer(Session user) {
+        if (playerOne == null) {
+            playerOne = user;
+            return 1;
+        } else if (playerTwo == null) {
+            playerTwo = user;
+            return 2;
+        } else {
+            return 0;
+        }
+    }
+
 
     /**
      * Accessor for the getBallCollisionStrategy
