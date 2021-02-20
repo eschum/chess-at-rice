@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Template Ball World by Eric S</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="js/view.js"></script>
+    <style>
+        body {
+            margin: 0;
+        }
+        h3 {text-align: center;}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row">
+        <div class="col text-center my-auto">
+            <h3>Chess@Rice</h3>
+            <div>
+                <div class="row">
+                    <div class="col">
+                        <select class="form-control" id="ball-type">
+                            <option value="diagonal">diagonal</option>
+                            <option value="size-change">size-change</option>
+                            <option value="random-reflection">random-reflection</option>
+                            <option value="friction-bounce">friction-bounce</option>
+                            <option value="zig-zag">zig-zag</option>
+                            <option value="rotate">rotate</option>
+                            <option value="hopscotch">hopscotch</option>
+                            <option value="dead / float">dead / float</option>
+                            <option value="color-change">color-change</option>
+                            <option value="do-the-robot">do-the-robot</option>
+                        </select>
+                    </div>
+                    <div class="col">
+                        <input class="switchable-value" type="checkbox" value="" id="switchable-value">
+                        <label class="form-check-label" for="switchable-value">
+                            Switchable?
+                        </label>
+                    </div>
+                </div>
+                <br>
+                <div>
+                    <button class="btn btn-primary" id="btn-load-ball">Load Ball</button>
+                    <button class="btn btn-primary" id="btn-load-fish">Load Fish</button>
+                </div>
+                <label for="ball-collision-type">Ball-Ball Collision Type</label>
+                <select class="form-control" id="ball-collision-type">
+                    <option value="bounce">bounce</option>
+                    <option value="chase">chase</option>
+                    <option value="scared-dodge">scared-dodge</option>
+                    <option value="color-change">color-change</option>
+                    <option value="incinerate">incinerate</option>
+                    <option value="explode">explode</option>
+                    <option value="excitation">excitation</option>
+                    <option value="eat-absorb">eat-absorb</option>
+                </select>
+                <label for="fish-collision-type">Fish-Fish Collision Type</label>
+                <select class="form-control" id="fish-collision-type">
+                    <option value="bounce">bounce</option>
+                    <option value="chase">chase</option>
+                    <option value="scared-dodge">scared-dodge</option>
+                    <option value="color-change">color-change</option>
+                    <option value="incinerate">incinerate</option>
+                    <option value="explode">explode</option>
+                    <option value="excitation">excitation</option>
+                    <option value="eat-absorb">eat-absorb</option>
+                </select>
+                <label for="ball-fish-collision-type">Ball-Fish Collision Type</label>
+                <select class="form-control" id="ball-fish-collision-type">
+                    <option value="bounce">bounce</option>
+                    <option value="chase">chase</option>
+                    <option value="scared-dodge">scared-dodge</option>
+                    <option value="color-change">color-change</option>
+                    <option value="incinerate">incinerate</option>
+                    <option value="explode">explode</option>
+                    <option value="excitation">excitation</option>
+                    <option value="eat-absorb">eat-absorb</option>
+                </select>
+                <br>
+                <button class="btn btn-primary" id="btn-switch-ball">Switch</button>
+                <div>
+                    <br>
+                    <button class="btn btn-primary" id="btn-del-ball">Delete</button>
+                    <button class="btn btn-primary" id="btn-clear">Clear Entire Canvas</button>
+                </div>
+                <div>
+                    <label for="objectSelect">Example multiple select</label>
+                    <select multiple class="form-control" id="objectSelect" style="height: 100%">
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class ="col my-auto">
+            <canvas width="768" height="768" style="border: 0px solid #000000"></canvas>
+        </div>
+    </div>
+    <br>
+
+</div>
+
+<br>
+
+<!--<div class="container canvas">-->
+<!--        <canvas width="800" height="800" style="border: 1px solid #000000"></canvas>-->
+<!--</div>-->
+
+</body>
+</html>
