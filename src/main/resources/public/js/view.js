@@ -3,12 +3,18 @@
 //app to draw polymorphic shapes on canvas
 let app;
 
-//Time interval for Updating ball world - 0.1 seconds = 100 ms.
-let update_interval = 100;
+//Time interval for Updating chess board: 5000ms = 5 seconds.
+let update_interval = 5000;
 
 //Global variables re: chess board size.
 let boardImgFile = "chessboard-768.png";
 let boardSide = 768;
+let spaceLen = boardSide / 8;
+
+//Global gameplay status
+let playerOneTurn = true;
+let moveOrigin = null;
+let moveDestination = null;
 
 /**
  * Create the ball world app for a canvas
@@ -86,14 +92,9 @@ function createApp(canvas) {
 window.onload = function() {
     app = createApp(document.querySelector("canvas"));
 
-    //Buttons for manipulating balls / fish in Paint World
-    $("#btn-load-ball").click(loadBall);
-    $("#btn-load-fish").click(loadFish);
-    $("#btn-switch-ball").click(switchStrategy);
-    $("#btn-del-ball").click(deleteObj);
-
-    //General Buttons for Control of Entire Canvas
-    $("#btn-clear").click(clear);
+    //Buttons for interacting with the game.
+    $("#btn-send").click(sendMove);
+    $("#btn-clear").click(clearMove);
 
     //Remove all the balls in case the browser is refreshed.
     clear();
@@ -188,6 +189,8 @@ function updateBallWorld() {
 }
 
 function updateBoard() {
+    //Change player turn. Currently doing this on a timer. Eventually do when message received.
+    //Update and re-draw board
     console.log("update");
     app.clear();
     app.drawBoard();
@@ -248,10 +251,81 @@ function addListSelectElement(name) {
 }
 
 /**
- * Helper function to register click events in relation to grid size.
+ * Take Action on a click.
  */
 function reportClick(e) {
+    let boardPos = returnClickPosition(e);
+    let log = document.getElementById('scrollBox');
+
+    if (moveOrigin == null) {
+        moveOrigin = boardPos;
+        let align = playerOneTurn ? "style=\"text-align:left\"" : "style=\"text-align:right\"";
+        let turn = playerOneTurn ? "Player 1: " : "Player 2: ";
+        log.innerHTML += "<p class='log'" + align + ">" + turn + boardPos + "<\p>";
+        let blank_log = document.querySelector(".scrollBox p:nth-last-child(1)");
+        blank_log.remove();
+        log.scrollTop = log.scrollHeight;
+    } else if (moveDestination == null) {
+        moveDestination = boardPos;
+        log = document.querySelector(".scrollBox p:nth-last-child(1)");
+        log.innerHTML += " -> " + boardPos;
+    } else {
+        //Do nothing - wait for Clear move
+    }
+}
+
+/**
+ * Helper function to return the click position on the board
+ * @param e EventListener for click on the canvas
+ * @returns {string} A string with the board position.
+ */
+function returnClickPosition(e) {
     let X = e.clientX - e.target.getBoundingClientRect().left;
     let Y = e.clientY - e.target.getBoundingClientRect().top;
-    console.log("click at: X " + X + ", Y " + Y);
+    let boardPos = String.fromCharCode(97 + (X / spaceLen)) + (8 - Math.floor(Y / spaceLen)).toString();
+
+    //Print debugging info and log the click position
+    console.log("click at: " + boardPos);
+    return boardPos;
+}
+
+/**
+ * Function to send the selected move to the model.
+ */
+function sendMove() {
+    if (moveOrigin != null && moveDestination != null) {
+        //send the move to the model. A stub for now that just changes the player.
+        let log = document.querySelector(".scrollBox p:nth-last-child(1)");
+        log.innerHTML += " (sent)";
+        //would need to verify move correctness, etc.
+
+        playerOneTurn = !playerOneTurn;
+        moveOrigin = null;
+        moveDestination = null;
+
+    } else {
+        alert("Must have an origin and destination move selected!");
+    }
+}
+
+/**
+ * Function to clear the move and remove the text from the log.
+ */
+function clearMove() {
+    if (moveOrigin != null) {
+        moveOrigin = null;
+        moveDestination = null;
+
+        //TODO - Clear the text of move sent out of the list box.
+        //let log = document.querySelector(".scrollBox p");
+        //let blank_log = document.querySelector(".scrollBox p:nth-last-child(1)");
+        let log = document.querySelector(".scrollBox p:nth-last-child(1)");
+
+        log.remove();
+        //blank_log.remove();
+    }
+
+
+
+
 }
