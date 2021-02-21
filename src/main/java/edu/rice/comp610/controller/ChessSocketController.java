@@ -2,11 +2,7 @@ package edu.rice.comp610.controller;
 
 import com.google.gson.Gson;
 import edu.rice.comp610.model.DispatchAdapter;
-import edu.rice.comp610.model.ball.PaintObject;
-
 import java.awt.*;
-import java.util.ArrayList;
-
 import static spark.Spark.*;
 
 
@@ -32,35 +28,17 @@ public class ChessSocketController {
         post("/load/:type", (request, response) -> {
             String ballType = request.queryParams("strategies");
             String switchable = request.queryParams("switchable");
-            PaintObject obj = dis.loadObj(ballType, request.params(":type"), switchable);
-            return gson.toJson(obj);
-        });
-
-        post("/switch", "application/json", (request, response) -> {
-            //System.out.print(request.queryParams("selections"));
-            dis.switchStrategy(request.queryParams("strategies"), gson.fromJson(request.queryParams("selections"), ArrayList.class),
-                    request.queryParams("ballCollision"), request.queryParams("fishCollision"),
-                    request.queryParams("ballFishCollision"));
             return "";
+            //return gson.toJson(obj);
         });
 
         get("/update", (request, response) -> gson.toJson(dis.updateBallWorld()));
-
-        post("/remove", (request, response) -> {
-            dis.removeSubsetListeners(gson.fromJson(request.queryParams("selections"), ArrayList.class));
-            return "";
-        });
 
         post("/canvas/dims", (request, response) -> {
             DispatchAdapter.setCanvasDims(new Point(Integer.parseInt(request.queryParams("width")),
                     Integer.parseInt(request.queryParams("height"))));
             System.out.print("Canvas dimensions set in model");
             return "Canvas dimensions set in model";
-        });
-
-        get("/clear", (request, response) -> {
-            dis.removeListeners();
-            return "";
         });
     }
 

@@ -2,17 +2,12 @@ package edu.rice.comp610.controller;
 
 import com.google.gson.Gson;
 import edu.rice.comp610.model.DispatchAdapter;
-import edu.rice.comp610.model.ball.PaintObject;
-import edu.rice.comp610.model.message.Message;
 import edu.rice.comp610.model.message.Player;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
-import java.awt.*;
 import java.io.IOException;
-import java.util.ArrayList;
-import com.google.gson.Gson;
-import static spark.Spark.*;
+
 
 
 @WebSocket
@@ -21,6 +16,8 @@ public class WebSocketController {
     Gson gson;
     Session playerOne;
     Session playerTwo;
+    Player p1;
+    Player p2;
 
     public WebSocketController() {
         da = new DispatchAdapter();
@@ -39,18 +36,29 @@ public class WebSocketController {
         if (connected == 1) {
             //start a new game.
             playerOne = userSession;
-            Player p1 = new Player();
+            p1 = new Player();
             p1.setName("Player One");
             try {
-                userSession.getRemote().sendString(gson.toJson(p1));
+                playerOne.getRemote().sendString(gson.toJson(p1));
             } catch (IOException e) {
                 System.out.println("IO Exception");
             }
         } else if (connected == 2) {
             playerTwo = userSession;
+            p2 = new Player();
+            p2.setName("Player Two");
+            try {
+                playerTwo.getRemote().sendString(gson.toJson(p2));
+                playerTwo.getRemote().sendString(gson.toJson(p1));
+                playerOne.getRemote().sendString(gson.toJson(p2));
+            } catch (IOException e) {
+                System.out.println("IO Exception");
+            }
+
+            //As player two is now connected, we can start the game.
+
+
         }
-
-
     }
 
     @OnWebSocketClose
