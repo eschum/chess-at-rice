@@ -9,7 +9,7 @@ let socket;
 let update_interval = 5000;
 
 //Global variables re: chess board size.
-let boardImgFile = "chessboard-600.png";
+let boardImgFile = "chessboard-600-rice.png";
 let boardSide = 600;
 let spaceLen = boardSide / 8;
 
@@ -134,7 +134,7 @@ function onMessage(msg) {
     let obj = JSON.parse(msg.data);
 
     switch(obj.type) {
-        case "player":
+        case "player_join":
             let log = document.getElementById('scrollBox');
             let align = playerOneTurn ? "style=\"text-align:left\"" : "style=\"text-align:right\"";
             let turn = playerOneTurn ? "Player 1: " : "Player 2: ";
@@ -143,7 +143,8 @@ function onMessage(msg) {
             blank_log.remove();
             log.scrollTop = log.scrollHeight;
             break;
-        default:
+            //TO DO - Act on the "start_game" message - to render the board.
+            default:
             break;
     }
 }

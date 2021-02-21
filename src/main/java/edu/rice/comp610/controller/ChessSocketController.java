@@ -34,12 +34,12 @@ public class ChessSocketController {
 
         get("/update", (request, response) -> gson.toJson(dis.updateBallWorld()));
 
-        post("/canvas/dims", (request, response) -> {
-            DispatchAdapter.setCanvasDims(new Point(Integer.parseInt(request.queryParams("width")),
-                    Integer.parseInt(request.queryParams("height"))));
-            System.out.print("Canvas dimensions set in model");
-            return "Canvas dimensions set in model";
-        });
+//        post("/canvas/dims", (request, response) -> {
+//            DispatchAdapter.setCanvasDims(new Point(Integer.parseInt(request.queryParams("width")),
+//                    Integer.parseInt(request.queryParams("height"))));
+//            System.out.print("Canvas dimensions set in model");
+//            return "Canvas dimensions set in model";
+//        });
     }
 
     /**

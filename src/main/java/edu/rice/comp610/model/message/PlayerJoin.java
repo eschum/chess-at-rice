@@ -1,10 +1,13 @@
 package edu.rice.comp610.model.message;
 
-public class Player extends Message{
+import edu.rice.comp610.model.game.*;
+
+public class PlayerJoin extends Message {
     private String name;
 
-    public Player() {
-        type = "player";
+    public PlayerJoin(Player p) {
+        type = "player_join";
+        this.name = p.getName();
     }
 
     /**
@@ -14,4 +17,5 @@ public class Player extends Message{
     public void setName(String n) {
         name = n;
     }
+
 }

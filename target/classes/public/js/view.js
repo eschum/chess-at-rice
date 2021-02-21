@@ -134,7 +134,7 @@ function onMessage(msg) {
     let obj = JSON.parse(msg.data);
 
     switch(obj.type) {
-        case "player":
+        case "player_join":
             let log = document.getElementById('scrollBox');
             let align = playerOneTurn ? "style=\"text-align:left\"" : "style=\"text-align:right\"";
             let turn = playerOneTurn ? "Player 1: " : "Player 2: ";

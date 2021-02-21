@@ -14,7 +14,7 @@ public class DispatchAdapter {
     private static Session playerOne;
     private static Session playerTwo;
     private static PropertyChangeSupport pcs;
-    private static Point dims;
+    public static int side = 600;
 
     /**
      * Constructor call.
@@ -49,21 +49,6 @@ public class DispatchAdapter {
         return pcs;
     }
 
-    /**
-     * Get the canvas dimensions.
-     * @return The canvas dimensions
-     */
-    public static Point getCanvasDims() {
-        return dims;
-    }
-
-    /**
-     * Set the canvas dimensions.
-     * @param dims The canvas width (x) and height (y).
-     */
-    public static void setCanvasDims(Point dims) {
-        DispatchAdapter.dims = dims;
-    }
 
     /**
      * Call the update method on all the ball observers to update their position in the ball world.
