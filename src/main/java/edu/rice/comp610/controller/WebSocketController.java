@@ -63,7 +63,7 @@ public class WebSocketController {
 
             try {
                 playerOne.getRemote().sendString(gson.toJson(startMessage));
-                playerOne.getRemote().sendString(gson.toJson(startMessage));
+                playerTwo.getRemote().sendString(gson.toJson(startMessage));
             } catch (IOException e) {
                 System.out.println("IO Exception");
             }

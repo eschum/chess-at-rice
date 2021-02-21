@@ -9,12 +9,13 @@ let socket;
 let update_interval = 5000;
 
 //Global variables re: chess board size.
-let boardImgFile = "chessboard-600.png";
+let boardImgFile = "chessboard-600-rice.png";
 let boardSide = 600;
 let spaceLen = boardSide / 8;
 
 //Global gameplay status
-let playerOneTurn = true;
+let gameStarted = false;
+let playerOneTurn = false;
 let moveOrigin = null;
 let moveDestination = null;
 
@@ -72,6 +73,18 @@ function createApp(canvas) {
         c.drawImage(boardImg, 0, 0, boardSide, boardSide);
     }
 
+    let drawPiece = function(imageStr, x, y) {
+        let newImg = new Image();
+        newImg.src = imageStr;
+        let halfSide = 30;
+
+        newImg.onload = function() {
+            console.log(imageStr + " " + x - halfSide + " " + y - halfSide);
+            c.drawImage(newImg, x - halfSide, y - halfSide);
+        }
+    }
+
+
     /**
      * Clear the canvas.
      */
@@ -83,6 +96,7 @@ function createApp(canvas) {
         drawCircle: drawCircle,
         drawFish: drawFish,
         drawBoard: drawBoard,
+        drawPiece: drawPiece,
         clear: clear,
         dims: {height: canvas.height, width: canvas.width}
     }
@@ -92,6 +106,8 @@ function createApp(canvas) {
  * Define action on window loading.
  */
 window.onload = function() {
+    app = createApp(document.querySelector("canvas"));
+
     socket = new WebSocket("ws://" + location.hostname + ":" + location.port +
         "/chess");
     socket.addEventListener('message', function (event) {
@@ -101,21 +117,25 @@ window.onload = function() {
     });
 
 
-    app = createApp(document.querySelector("canvas"));
-
     //Buttons for interacting with the game.
     $("#btn-send").click(sendMove);
     $("#btn-clear").click(clearMove);
 
     //Remove all the balls in case the browser is refreshed.
-    clear();
+    //clear();
 
     //Send canvas dimensions to the controller.
-    canvasDims();
+    //canvasDims();
 
     //Establish an Interval to update the Ball World view.
-    setInterval(updateBoard, update_interval);
+
+    //setInterval(updateBoard, update_interval);
+
 };
+
+window.addEventListener('load', (event) => {
+    console.log('page is fully loaded');
+});
 
 
 /**
@@ -135,6 +155,7 @@ function onMessage(msg) {
 
     switch(obj.type) {
         case "player_join":
+            initialDrawBoard();
             let log = document.getElementById('scrollBox');
             let align = playerOneTurn ? "style=\"text-align:left\"" : "style=\"text-align:right\"";
             let turn = playerOneTurn ? "Player 1: " : "Player 2: ";
@@ -143,89 +164,35 @@ function onMessage(msg) {
             blank_log.remove();
             log.scrollTop = log.scrollHeight;
             break;
-        default:
+            //TO DO - Act on the "start_game" message - to render the board.
+        case "start_game":
+            gameStarted = true; //set the game status to start playing.
+            updateBoard_piece(obj.game);
+            default:
             break;
     }
 }
 
 /**
- * load ball at a location specified by model on the canvas
+ * Render the positions of all the current pieces on the board.
+ * @param game
  */
-function loadBall() {
-    let values = $("#ball-type :selected").text();  //Load strategy type from the Strategy Dropdown.
-    let type = $("#switchable-value").is(":checked") ? "true" : "false";
-    let del = $("#deletable-value").is(":checked") ? "true" : "false";
+function updateBoard_piece(game) {
 
-    $.post("/load/ball", { strategies: values, switchable: type, deletable: del}, function (data) {
-        app.drawCircle(data.loc.x, data.loc.y, data.radius, data.color);
-        addListSelectElement(data.name);
-        console.log("Drew " + data.name);
-        }, "json");
+    game.lightPieces.forEach(function (obj) {
+        app.drawPiece(obj.image, obj.loc.x, obj.loc.y);
+    });
+
+    game.darkPieces.forEach(function (obj) {
+        app.drawPiece(obj.image, obj.loc.x, obj.loc.y);
+    });
 }
 
 /**
- * load fish at a location specified by model on the canvas
+ * Helper function to draw the initial board.
  */
-function loadFish() {
-    let values = $("#ball-type :selected").text();  //Load strategy type from the Strategy Dropdown.
-    let type = $("#switchable-value").is(":checked") ? "true" : "false";
-
-    $.post("/load/fish", { strategies: values, switchable: type }, function (data) {
-        app.drawFish(data.loc.x, data.loc.y, data.image, data.scale, data.flip, data.rotate);
-        addListSelectElement(data.name);
-        console.log("Drew " + data.name);
-    }, "json");
-}
-
-/**
- * Switch strategies
- */
-function switchStrategy() {
-    let values = $("#ball-type :selected").text();  //Load strategy type from the Strategy Dropdown.
-    let selected = $("#objectSelect").val();  //String array with all the objects that are selected.
-    let toSend = JSON.stringify(selected);
-    console.log(selected);
-    let ballCollision = $("#ball-collision-type").val();  //ball-ball collision type.
-    let fishCollision = $("#fish-collision-type").val();  //fish-fish collision type.
-    let ballFishCollision = $("#ball-fish-collision-type").val();  //fish-fish collision type.
-
-    $.post("/switch", { strategies: values, selections: toSend, ballCollision: ballCollision, fishCollision: fishCollision,
-    ballFishCollision: ballFishCollision}, "json");
-    updateBallWorld();  //Just use our updateBallWorld function to redraw the world with new strategies.
-}
-
-/**
- *  Update the ball world.
- *  GET request will return a JSON array of all the balls to draw.
- *  Clear the canvas and redraw all the balls.
- */
-function updateBallWorld() {
-    let sel = document.getElementById('objectSelect');
-    let updateList = false;
-    console.log("Update");
-    $.get("/update", function(data) {
-        app.clear();    //Clear after we get word back from the server.
-
-        console.log("Number of balls:" + data.length + "Multi-select length" + sel.length);
-        updateList = data.length !== sel.length
-        if (updateList) $("#objectSelect").empty();
-
-
-        //Iterate through each object, adding list entry if necessary.
-        data.forEach(function (obj) {
-            if (obj.viewRenderType === "ball") app.drawCircle(obj.loc.x, obj.loc.y, obj.radius, obj.color);
-            else if (obj.viewRenderType === "fish") app.drawFish(obj.loc.x, obj.loc.y, obj.image, obj.scale,
-                obj.flip, obj.rotate);
-            //If we emptied the list (due to an explosion), need to re-populate.
-            if (updateList) addListSelectElement(obj.name);
-        });
-    }, "json");
-}
-
-function updateBoard() {
-    //Change player turn. Currently doing this on a timer. Eventually do when message received.
-    //Update and re-draw board
-    console.log("update");
+function initialDrawBoard() {
+    console.log("draw board");
     app.clear();
     app.drawBoard();
 }
@@ -244,44 +211,6 @@ function clear() {
     $.get("/clear");
     app.clear();
     $("#objectSelect").empty();
-
-}
-
-/**
- * DeleteObj - call the endpoint to delete subset of objects that are selected.
- */
-function deleteObj() {
-    let selBox = $("#objectSelect");
-    let selected = selBox.val();  //String array with all the objects that are selected.
-    let toSend = JSON.stringify(selected);
-    console.log(selected);
-    $.post("/remove", { selections: toSend }, "json");
-
-    //Clear the list of the items we are attempting to delete.
-    selBox.find('option:selected').remove();
-
-    //Re-adjust the list box length
-    selBox.size = selBox.length > 12 ? 12 : selBox.length;
-}
-
-/**
- * Add List Select Element - helper function to add a list element when an object is added.
- * @param name
- */
-function addListSelectElement(name) {
-    //Obtain the Document select multi object and add the list item
-    let sel = document.getElementById('objectSelect');
-    let option = document.createElement("option");
-    sel.options.add(option);
-    option.text = name;
-    option.value = name;
-
-    //Adjust the size of the selection list
-    sel.size = sel.length > 12 ? 12 : sel.length;
-    console.log(sel.length);
-
-    //Return - return false for JavaScript to add the item
-    return false;
 }
 
 /**
@@ -290,6 +219,8 @@ function addListSelectElement(name) {
 function reportClick(e) {
     let boardPos = returnClickPosition(e);
     let log = document.getElementById('scrollBox');
+
+    if (!gameStarted) return;  //Ignore canvas clicks if the game has not started.
 
     if (moveOrigin == null) {
         moveOrigin = boardPos;
@@ -352,13 +283,8 @@ function clearMove() {
         moveOrigin = null;
         moveDestination = null;
 
-        //TODO - Clear the text of move sent out of the list box.
-        //let log = document.querySelector(".scrollBox p");
-        //let blank_log = document.querySelector(".scrollBox p:nth-last-child(1)");
         let log = document.querySelector(".scrollBox p:nth-last-child(1)");
-
         log.remove();
-        //blank_log.remove();
     }
 
 

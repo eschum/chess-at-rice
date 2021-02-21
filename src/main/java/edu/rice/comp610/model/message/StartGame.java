@@ -9,6 +9,5 @@ public class StartGame extends Message {
     public StartGame(Game game) {
         type = "start_game";
         this.game = game;
-
     }
 }
