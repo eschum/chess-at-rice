@@ -266,6 +266,10 @@ function returnClickPosition(e) {
 
 /**
  * Function to send the selected move to the model.
+ * Note that reportClick() will only allow the moveOrigin and mostDest
+ * to be populated based on correct player selecting the move.
+ * So here, all we need to do is proceed if they are filled.
+ *
  */
 function sendMove() {
     if (moveOrigin != null && moveDestination != null) {
@@ -274,7 +278,9 @@ function sendMove() {
         log.innerHTML += " (sent)";
 
         //Send message.
-        socket.send(moveOrigin + "," + moveDestination);
+        let msgJSON = {type: "move", fromLoc: moveOrigin, toLoc: moveDestination};
+        let msg = JSON.stringify(msgJSON);
+        socket.send(msg);
 
         moveOrigin = null;
         moveDestination = null;

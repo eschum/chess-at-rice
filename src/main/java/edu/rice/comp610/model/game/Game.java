@@ -1,6 +1,8 @@
 package edu.rice.comp610.model.game;
 
 import edu.rice.comp610.model.piece.*;
+import org.eclipse.jetty.websocket.api.Session;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,11 +21,34 @@ public class Game {
         initNewGame();
     }
 
+    /**
+     * Method: Process Move
+     * Process a move that is received from a session.
+     * Check to make sure that the player matches the type of piece that is attempted to be moved.
+     * Then, process the validity of the move itself (can insert more advanced Chess logic in future)
+     * Finally, respond with an update to the board, or an error message. To both players and all spectators.
+     * @param userSession
+     * @param fromLoc
+     * @param toLoc
+     */
+    public void processMove(Session userSession, String fromLoc, String toLoc) {
+        System.out.print(("Move from " + fromLoc + " to " + toLoc + " by " + userSession));
+    }
 
+    /**
+     * Get Light Pieces
+     * Helper method to return the array list of pieces.
+     * @return
+     */
     public ArrayList<Piece> getLightPieces() {
         return lightPieces;
     }
 
+    /**
+     * Get Dark
+     * Helper method to return the array list of pieces.
+     * @return
+     */
     public ArrayList<Piece> getDarkPieces() {
         return darkPieces;
     }
