@@ -11,6 +11,7 @@ public class StartGame extends Message {
     private boolean lightPlayer;
     private boolean darkPlayer;
     private boolean spectator;
+    private boolean lightPlayerTurn;
 
     public StartGame(ArrayList<Piece> light, ArrayList<Piece> dark, boolean p1, boolean p2, boolean spectator) {
         type = "start_game";
@@ -19,5 +20,6 @@ public class StartGame extends Message {
         this.spectator = spectator;
         lightPieces = light;
         darkPieces = dark;
+        lightPlayerTurn = true;
     }
 }

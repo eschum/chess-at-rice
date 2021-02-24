@@ -21,7 +21,7 @@ public class Piece {
      * 0-indexed, starting from upper left.
      * @param boardLocation
      */
-    private void updateLoc(String boardLocation) {
+    public void updateLoc(String boardLocation) {
         this.boardLoc = boardLocation;
 
         int horizontal = (int) boardLoc.charAt(0) - 97;
@@ -34,5 +34,14 @@ public class Piece {
 
     public void setImage(String img) {
         this.image = img;
+    }
+
+    /**
+     * Accessor method to return the team of the piece.
+     * 0 for light team, 1 for dark team
+     * @return
+     */
+    public int getTeam() {
+        return team;
     }
 }

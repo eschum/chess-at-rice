@@ -173,7 +173,10 @@ function onMessage(msg) {
             isLightPlayer = obj.lightPlayer;
             isDarkPlayer = obj.darkPlayer;
             isSpectator = obj.spectator;
-            lightPlayerTurn = true;
+            lightPlayerTurn = obj.lightPlayerTurn;
+            updateBoard_piece(obj);
+        case "update_game":
+            lightPlayerTurn = obj.lightPlayerTurn;
             updateBoard_piece(obj);
             default:
             break;
@@ -185,6 +188,8 @@ function onMessage(msg) {
  * @param game
  */
 function updateBoard_piece(gameMsg) {
+    app.clear();
+    app.drawBoard();
     gameMsg.lightPieces.forEach(function (obj) {
         app.drawPiece(obj.image, obj.loc.x, obj.loc.y);
     });

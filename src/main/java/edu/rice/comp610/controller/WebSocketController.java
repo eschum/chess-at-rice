@@ -98,7 +98,9 @@ public class WebSocketController {
         String type = parsedMsg.get("type").toString();
         type = type.substring(1, type.length() - 1);
         String from = parsedMsg.get("fromLoc").toString();
+        from = from.substring(1, from.length() - 1);
         String to = parsedMsg.get("toLoc").toString();
+        to = to.substring(1, to.length() - 1);
 
         System.out.print(type);
         //Take action based on message type.

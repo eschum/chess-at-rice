@@ -1,8 +1,12 @@
 package edu.rice.comp610.model.game;
 
+import com.google.gson.Gson;
+import edu.rice.comp610.model.message.Message;
+import edu.rice.comp610.model.message.UpdateGame;
 import edu.rice.comp610.model.piece.*;
 import org.eclipse.jetty.websocket.api.Session;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,16 +18,21 @@ public class Game {
     private ArrayList<Player> spectators;
     private Player lightPlayer;
     private Player darkPlayer;
+    private boolean lightPlayerTurn;
+    private Gson gson;
 
     public Game(Player p1, Player p2) {
+        gson = new Gson();
         lightPlayer = p1;
         darkPlayer = p2;
+        spectators = new ArrayList<>();
         initNewGame();
     }
 
     /**
      * Method: Process Move
      * Process a move that is received from a session.
+     * Need to make sure that the from location is a piece, and it is a player's own piece.
      * Check to make sure that the player matches the type of piece that is attempted to be moved.
      * Then, process the validity of the move itself (can insert more advanced Chess logic in future)
      * Finally, respond with an update to the board, or an error message. To both players and all spectators.
@@ -32,7 +41,100 @@ public class Game {
      * @param toLoc
      */
     public void processMove(Session userSession, String fromLoc, String toLoc) {
-        System.out.print(("Move from " + fromLoc + " to " + toLoc + " by " + userSession));
+        Piece selectedPiece = positions.get(fromLoc);
+
+        if (selectedPiece == null) {
+            //TODO send error message - a piece wasn't selected
+
+            return;
+
+        } else if ((userSession == lightPlayer.getSession() && selectedPiece.getTeam() != 0) ||
+                (userSession == darkPlayer.getSession() && selectedPiece.getTeam() != 1)) {
+            //TODO send error message - piece selected is of the wrong team
+            //This way, we are not passing userSession data to the validateMove method.
+
+            return;
+        }
+
+        //If we made it out, process the move of a valid piece selection.
+        if (!validateMove(selectedPiece, toLoc)) {
+            //TODO send error message - invalid move requested.
+            System.out.print("attempted to move onto square containing own piece");
+            return;
+
+        }
+
+        //TODO: If pass, then make the move. Update positions. Remove captured piece. Send update.
+        Piece targetPiece = positions.get(toLoc);
+
+        if (targetPiece == null) {
+            //If moving to an empty spot, just update the position.
+            selectedPiece.updateLoc(toLoc);
+
+        } else {
+            //if there is an enemy piece, then take the enemy piece.
+
+            //Remove piece from appropriate team's piece store.
+            removePiece(targetPiece);
+
+            //remove the reference from the positions map.
+            positions.remove(toLoc);
+
+            //Set the attacking piece as the present position.
+            positions.put(toLoc, selectedPiece);
+            selectedPiece.updateLoc(toLoc);
+        }
+
+        //TODO: send message with updated board state.
+        //incorporate score
+        sendUpdateMessage();
+
+    }
+
+    /**
+     * Method: Send Update Message
+     * Update the board state.
+     */
+    public void sendUpdateMessage() {
+        lightPlayerTurn = !lightPlayerTurn;
+        Message update = new UpdateGame(lightPieces, darkPieces, lightPlayerTurn);
+
+        //Send update to player one and player two, and each spectator.
+        try {
+            lightPlayer.getSession().getRemote().sendString(gson.toJson(update));
+            darkPlayer.getSession().getRemote().sendString(gson.toJson(update));
+            for (int i = 0; i < spectators.size(); i++) {
+                spectators.get(i).getSession().getRemote().sendString(gson.toJson(update));
+            }
+        } catch (IOException e) {
+            System.out.println("IO Exception");
+        }
+    }
+
+    /**
+     * Method: Validate Move
+     * Check if this is a valid move (or if we are moving onto a piece from our own team).
+     *
+     * This assumes that processMove has already checked that the piece selected is of the correct team.
+     * Do it this way so we don't pass userSession info to the validateMove method.
+     * @param selectedPiece
+     * @param toLoc
+     * @return - false if the move is invalid. True if the move is valid.
+     */
+    private boolean validateMove(Piece selectedPiece, String toLoc) {
+        //Boolean zen - yeah!
+        //Can extend to add specific error checking based on piece type.
+        return (!positions.containsKey(toLoc) || positions.get(toLoc).getTeam() != selectedPiece.getTeam());
+    }
+
+    /**
+     * Remove Piece
+     * Helper method to remove a piece from the Array List containing the pieces for the appropriate team.
+     * @param targetPiece
+     */
+    private void removePiece(Piece targetPiece) {
+        ArrayList<Piece> pieces = targetPiece.getTeam() == 0 ? lightPieces : darkPieces;
+        pieces.remove(targetPiece);
     }
 
     /**
@@ -54,10 +156,21 @@ public class Game {
     }
 
     /**
+     * Method: Add Spectator
+     * Description: Mutator method to add a spectator.
+     * @param player
+     */
+    public void addSpectator(Player player) {
+        spectators.add(player);
+    }
+
+    /**
      * Method: init
      * Darw all pieces
      */
     private void initNewGame() {
+        lightPlayerTurn = true; //Light moves first per chess rules.
+
         //Initialize map to store the positions of all the pieces.
         positions = new HashMap<>();
 
