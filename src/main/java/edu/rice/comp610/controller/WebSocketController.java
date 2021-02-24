@@ -16,8 +16,6 @@ import java.io.IOException;
 public class WebSocketController {
     DispatchAdapter da;
     Gson gson;
-    Session playerOne;
-    Session playerTwo;
     Player p1;
     Player p2;
     Game game;
@@ -25,8 +23,6 @@ public class WebSocketController {
     public WebSocketController() {
         da = new DispatchAdapter();
         gson = new Gson();
-        playerOne = null;
-        playerTwo = null;
     }
 
     @OnWebSocketConnect
@@ -38,38 +34,51 @@ public class WebSocketController {
         System.out.print(connected);
         if (connected == 1) {
             //start a new game.
-            playerOne = userSession;
             p1 = new Player("Player One");
+            p1.setSession(userSession);
+
             try {
-                playerOne.getRemote().sendString(gson.toJson(p1.getJoinMessage()));
+                p1.getSession().getRemote().sendString(gson.toJson(p1.getJoinMessage()));
             } catch (IOException e) {
                 System.out.println("IO Exception");
             }
         } else if (connected == 2) {
-            playerTwo = userSession;
             p2 = new Player("Player Two");
+            p2.setSession(userSession);
             try {
-                playerTwo.getRemote().sendString(gson.toJson(p2.getJoinMessage()));
-                playerTwo.getRemote().sendString(gson.toJson(p1.getJoinMessage()));
-                playerOne.getRemote().sendString(gson.toJson(p2.getJoinMessage()));
+                p2.getSession().getRemote().sendString(gson.toJson(p2.getJoinMessage()));
+                p2.getSession().getRemote().sendString(gson.toJson(p1.getJoinMessage()));
+                p1.getSession().getRemote().sendString(gson.toJson(p2.getJoinMessage()));
             } catch (IOException e) {
                 System.out.println("IO Exception");
             }
 
             //As player two is now connected, we can start the game.
             //This code here only temporarily. Eventually handle this with the dispatch adapter.
-            game = new Game();
-            StartGame startMessage = new StartGame(game);
+
+            //Note: passing game while calling on p1 will lead to reflexive calls.
+            game = new Game(p1, p2);
 
             try {
-                playerOne.getRemote().sendString(gson.toJson(startMessage));
-                playerTwo.getRemote().sendString(gson.toJson(startMessage));
+                p1.getSession().getRemote().sendString(gson.toJson(sendStartMsg(game, true, false, false)));
+                p2.getSession().getRemote().sendString(gson.toJson(sendStartMsg(game, false, true, false)));
             } catch (IOException e) {
                 System.out.println("IO Exception");
             }
-
-
         }
+    }
+
+    /**
+     * Send Start Message: Helper function to send a message to start the game.
+     * Just send piece locations and current status.
+     * @param game
+     * @param lightPlayer
+     * @param darkPlayer
+     * @param spectator
+     * @return
+     */
+    private StartGame sendStartMsg(Game game, boolean lightPlayer, boolean darkPlayer, boolean spectator) {
+        return new StartGame(game.getLightPieces(), game.getDarkPieces(), lightPlayer, darkPlayer, spectator);
     }
 
     @OnWebSocketClose
@@ -78,14 +87,6 @@ public class WebSocketController {
     @OnWebSocketMessage
     public void onMessage(Session userSession, String message) {
         System.out.print(message);
-        if (playerOne != null && playerTwo != null) {
-            if (userSession == playerOne) {
-                try {
-                    playerTwo.getRemote().sendString(message);
-                } catch (IOException e) {
-                    System.out.println("IO Exception");
-                }
-            }
-        }
+
     }
 }

@@ -15,7 +15,10 @@ let spaceLen = boardSide / 8;
 
 //Global gameplay status
 let gameStarted = false;
-let playerOneTurn = false;
+let lightPlayerTurn = false;
+let isSpectator = false;
+let isLightPlayer = false;
+let isDarkPlayer = false;
 let moveOrigin = null;
 let moveDestination = null;
 
@@ -157,8 +160,8 @@ function onMessage(msg) {
         case "player_join":
             initialDrawBoard();
             let log = document.getElementById('scrollBox');
-            let align = playerOneTurn ? "style=\"text-align:left\"" : "style=\"text-align:right\"";
-            let turn = playerOneTurn ? "Player 1: " : "Player 2: ";
+            let align = lightPlayerTurn ? "style=\"text-align:left\"" : "style=\"text-align:right\"";
+            let turn = lightPlayerTurn ? "Player 1: " : "Player 2: ";
             log.innerHTML += "<p class='log'" + align + ">" + obj.name + " Connected<\p>";
             let blank_log = document.querySelector(".scrollBox p:nth-last-child(1)");
             blank_log.remove();
@@ -167,7 +170,11 @@ function onMessage(msg) {
             //TO DO - Act on the "start_game" message - to render the board.
         case "start_game":
             gameStarted = true; //set the game status to start playing.
-            updateBoard_piece(obj.game);
+            isLightPlayer = obj.lightPlayer;
+            isDarkPlayer = obj.darkPlayer;
+            isSpectator = obj.spectator;
+            lightPlayerTurn = true;
+            updateBoard_piece(obj);
             default:
             break;
     }
@@ -177,13 +184,12 @@ function onMessage(msg) {
  * Render the positions of all the current pieces on the board.
  * @param game
  */
-function updateBoard_piece(game) {
-
-    game.lightPieces.forEach(function (obj) {
+function updateBoard_piece(gameMsg) {
+    gameMsg.lightPieces.forEach(function (obj) {
         app.drawPiece(obj.image, obj.loc.x, obj.loc.y);
     });
 
-    game.darkPieces.forEach(function (obj) {
+    gameMsg.darkPieces.forEach(function (obj) {
         app.drawPiece(obj.image, obj.loc.x, obj.loc.y);
     });
 }
@@ -220,12 +226,16 @@ function reportClick(e) {
     let boardPos = returnClickPosition(e);
     let log = document.getElementById('scrollBox');
 
+    //Explicitly disallow several cases.
     if (!gameStarted) return;  //Ignore canvas clicks if the game has not started.
+    if (isSpectator) return;   //Do not allow spectators to interact with the board.
+    if (lightPlayerTurn && isDarkPlayer) return;   //Only allow light player to select when light player's turn.
+    if (!lightPlayerTurn && isLightPlayer) return; //Only allow dark player on dark player's turn.
 
     if (moveOrigin == null) {
         moveOrigin = boardPos;
-        let align = playerOneTurn ? "style=\"text-align:left\"" : "style=\"text-align:right\"";
-        let turn = playerOneTurn ? "Player 1: " : "Player 2: ";
+        let align = lightPlayerTurn ? "style=\"text-align:left\"" : "style=\"text-align:right\"";
+        let turn = lightPlayerTurn ? "Player 1: " : "Player 2: ";
         log.innerHTML += "<p class='log'" + align + ">" + turn + boardPos + "<\p>";
         let blank_log = document.querySelector(".scrollBox p:nth-last-child(1)");
         blank_log.remove();
@@ -266,7 +276,6 @@ function sendMove() {
         //Send message.
         socket.send(moveOrigin + "," + moveDestination);
 
-        playerOneTurn = !playerOneTurn;
         moveOrigin = null;
         moveDestination = null;
 
@@ -286,8 +295,4 @@ function clearMove() {
         let log = document.querySelector(".scrollBox p:nth-last-child(1)");
         log.remove();
     }
-
-
-
-
 }
