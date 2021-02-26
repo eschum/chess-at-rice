@@ -67,7 +67,7 @@ public class Game {
         broadcastMessage(p.getSpectatorJoin());
 
         //Give the spectator a manual update of the board status.
-        Message update = new UpdateGame(lightPieces, darkPieces, lightPlayerTurn);
+        Message update = new UpdateGame(lightPieces, darkPieces, lightPlayerTurn, "void");
         try {
             p.getSession().getRemote().sendString(gson.toJson(update));
         } catch (IOException e) {
@@ -158,7 +158,9 @@ public class Game {
         }
 
         //Broadcast update message to all entities
-        sendUpdateMessage();
+        String name = entities.get(userSession).getName();
+        String move = name + ": " + fromLoc + " -> " + toLoc;
+        sendUpdateMessage(move);
 
     }
 
@@ -166,9 +168,9 @@ public class Game {
      * Method: Send Update Message
      * Update the board state.
      */
-    public void sendUpdateMessage() {
+    public void sendUpdateMessage(String move) {
         lightPlayerTurn = !lightPlayerTurn;
-        Message update = new UpdateGame(lightPieces, darkPieces, lightPlayerTurn);
+        Message update = new UpdateGame(lightPieces, darkPieces, lightPlayerTurn, move);
 
         //Send the message to all entities.
         broadcastMessage(update);

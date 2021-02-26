@@ -179,6 +179,8 @@ function onMessage(msg) {
             updateBoard_piece(obj);
             break;
         case "update_game":
+            addUpdateToLog(obj.move);  //Add the update to the log before switching players.
+            console.log(obj.move);
             lightPlayerTurn = obj.lightPlayerTurn;
             updateBoard_piece(obj);
             break;
@@ -193,6 +195,27 @@ function onMessage(msg) {
             default:
             break;
     }
+}
+
+
+function addUpdateToLog(moveString) {
+    if (moveString == "void") return;  //Empty position update for manual joining update of a spectator.
+    let log = document.getElementById('scrollBox');
+    let blank_log;
+    //If own turn, we need to first remove the tentative update.
+    if ((isLightPlayer && lightPlayerTurn) || (isDarkPlayer && !lightPlayerTurn)) {
+        //Remove the tentative status.
+        blank_log = document.querySelector(".scrollBox p:nth-last-child(1)");
+        blank_log.remove();
+    }
+
+    //Add the finalized move to the log
+    let style = (isLightPlayer && lightPlayerTurn) || (isDarkPlayer && !lightPlayerTurn) ?
+        "style='text-align: right'" : "style='text-align: left'"
+    log.innerHTML += "<p class='log' " + style + ">" + moveString + "<\p>";
+    blank_log = document.querySelector(".scrollBox p:nth-last-child(1)");
+    blank_log.remove();
+    log.scrollTop = log.scrollHeight;
 }
 
 /**
@@ -253,7 +276,7 @@ function reportClick(e) {
         moveOrigin = boardPos;
         let align = (lightPlayerTurn && isLightPlayer) || (!lightPlayerTurn && isDarkPlayer)
             ? "style=\"text-align:right\"" : "style=\"text-align:left\"";
-        let turn = lightPlayerTurn ? "Player 1: " : "Player 2: ";
+        let turn = lightPlayerTurn ? "Selected: " : "Selected: ";
         log.innerHTML += "<p class='log'" + align + ">" + turn + boardPos + "<\p>";
         let blank_log = document.querySelector(".scrollBox p:nth-last-child(1)");
         blank_log.remove();
