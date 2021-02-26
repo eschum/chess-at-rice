@@ -180,6 +180,11 @@ function onMessage(msg) {
         case "chat":
             insertChat(obj.content);
             break;
+        case "error":
+            alert(obj.content);
+            let logLast = document.querySelector(".scrollBox p:nth-last-child(1)");
+            logLast.remove();
+            break;
             default:
             break;
     }
@@ -330,6 +335,7 @@ function clearMove() {
     if (moveOrigin != null) {
         moveOrigin = null;
         moveDestination = null;
+
 
         let log = document.querySelector(".scrollBox p:nth-last-child(1)");
         log.remove();

@@ -26,7 +26,6 @@ public class Piece {
 
         int horizontal = (int) boardLoc.charAt(0) - 97;
         int vertical = Integer.parseInt(boardLoc.charAt(1)+"");
-        System.out.print(vertical);
 
         this.loc.x = horizontal * (DispatchAdapter.side / 8) + DispatchAdapter.side / 16;
         this.loc.y = (8 - vertical) * (DispatchAdapter.side / 8) + DispatchAdapter.side / 16;

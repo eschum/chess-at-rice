@@ -2,6 +2,7 @@ package edu.rice.comp610.model.game;
 
 import com.google.gson.Gson;
 import edu.rice.comp610.model.message.ChatMessage;
+import edu.rice.comp610.model.message.ErrorMessage;
 import edu.rice.comp610.model.message.Message;
 import edu.rice.comp610.model.message.UpdateGame;
 import edu.rice.comp610.model.piece.*;
@@ -104,32 +105,38 @@ public class Game {
         Piece selectedPiece = positions.get(fromLoc);
 
         if (selectedPiece == null) {
-            //TODO send error message - a piece wasn't selected
+            //send error message - a piece wasn't selected
+            sendErrorMessage(userSession, "A piece was not selected");
 
             return;
 
         } else if ((userSession == lightPlayer.getSession() && selectedPiece.getTeam() != 0) ||
                 (userSession == darkPlayer.getSession() && selectedPiece.getTeam() != 1)) {
-            //TODO send error message - piece selected is of the wrong team
-            //This way, we are not passing userSession data to the validateMove method.
+            //send error message - piece selected is of the wrong team
+            sendErrorMessage(userSession, "Selecting piece of opposite team is not allowed");
+
 
             return;
         }
 
         //If we made it out, process the move of a valid piece selection.
         if (!validateMove(selectedPiece, toLoc)) {
-            //TODO send error message - invalid move requested.
-            System.out.print("attempted to move onto square containing own piece");
+            //TODO send error message - invalid move requested - moving onto square with own piece.
+            sendErrorMessage(userSession, "Cannot move onto square already occupied by own piece");
             return;
 
         }
 
-        //TODO: If pass, then make the move. Update positions. Remove captured piece. Send update.
+        //If passes the validation, then make the move. Update positions. Remove captured piece. Send update.
         Piece targetPiece = positions.get(toLoc);
 
         if (targetPiece == null) {
-            //If moving to an empty spot, just update the position.
+            //If moving to an empty spot, update position of the piece
             selectedPiece.updateLoc(toLoc);
+            
+            //Update the record of this piece's position in the game's position map
+            positions.remove(fromLoc);
+            positions.put(toLoc, selectedPiece);
 
         } else {
             //if there is an enemy piece, then take the enemy piece.
@@ -137,8 +144,10 @@ public class Game {
             //Remove piece from appropriate team's piece store.
             removePiece(targetPiece);
 
-            //remove the reference from the positions map.
+            //Update the record of this piece's position in the game's position map
+            positions.remove(fromLoc);
             positions.remove(toLoc);
+
 
             //Set the attacking piece as the present position.
             positions.put(toLoc, selectedPiece);
@@ -172,6 +181,23 @@ public class Game {
     }
 
     /**
+     * Method: Send Error Message
+     * Helper method to send an error message to the erring player.
+     * @param session
+     * @param errString
+     */
+    public void sendErrorMessage(Session session, String errString) {
+        try {
+            session.getRemote().sendString(gson.toJson(new ErrorMessage(errString)));
+        } catch (IOException e) {
+            System.out.println("IO Exception");
+        }
+    }
+
+
+
+
+    /**
      * Method: Validate Move
      * Check if this is a valid move (or if we are moving onto a piece from our own team).
      *
@@ -184,6 +210,7 @@ public class Game {
     private boolean validateMove(Piece selectedPiece, String toLoc) {
         //Boolean zen - yeah!
         //Can extend to add specific error checking based on piece type.
+        System.out.print("Contains key? : " + positions.containsKey(toLoc));
         return (!positions.containsKey(toLoc) || positions.get(toLoc).getTeam() != selectedPiece.getTeam());
     }
 

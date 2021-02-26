@@ -31,8 +31,6 @@ public class WebSocketController {
 
     @OnWebSocketConnect
     public void onConnect(Session userSession) {
-        System.out.print("New Session: " + userSession + "\n");
-
         //Player will be instantiated upon login and entering the System.
         Player player = new Player("user" + userCounter++, userSession);
 
@@ -42,7 +40,6 @@ public class WebSocketController {
         //Pass to Dispatch Adapter to process.
         int connected = DispatchAdapter.connectPlayer(player, game);
 
-        System.out.print(connected);
         if (connected == 1) {
             try {
                 player.getSession().getRemote().sendString(gson.toJson(player.getJoinMessage()));
@@ -101,7 +98,7 @@ public class WebSocketController {
 
     @OnWebSocketMessage
     public void onMessage(Session userSession, String message) {
-        System.out.print(message);
+        //System.out.print(message);
         JsonObject parsedMsg = gson.fromJson(message, JsonObject.class);
 
         String type = parsedMsg.get("type").toString();
@@ -125,8 +122,5 @@ public class WebSocketController {
             //Delegate that game to process sending the chat to all participants.
             allSessions.get(userSession).processChat(userSession, content);
         }
-
-
-
     }
 }
