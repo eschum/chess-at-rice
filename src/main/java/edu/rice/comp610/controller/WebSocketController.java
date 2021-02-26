@@ -69,14 +69,8 @@ public class WebSocketController {
             }
         } else if (connected == 0) {
             //if connected is 0, that means the person is a spectator.
-
             allSessions.put(player.getSession(), game);
-            try {
-                player.getSession().getRemote().sendString(gson.toJson(player.getSpectatorJoin()));
-            } catch (IOException e) {
-                System.out.println("IO Exception");
-            }
-            game.addSpectator(player);
+            game.addSpectator(player); //Delegate to game class to add the spectator and send the messages.
         }
     }
 

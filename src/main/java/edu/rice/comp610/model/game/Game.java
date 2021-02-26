@@ -63,6 +63,9 @@ public class Game {
         spectators.add(p);
         entities.put(p.getSession(), p);
 
+        //Broadcast to all that a spectator has entered.
+        broadcastMessage(p.getSpectatorJoin());
+
         //Give the spectator a manual update of the board status.
         Message update = new UpdateGame(lightPieces, darkPieces, lightPlayerTurn);
         try {
@@ -133,7 +136,7 @@ public class Game {
         if (targetPiece == null) {
             //If moving to an empty spot, update position of the piece
             selectedPiece.updateLoc(toLoc);
-            
+
             //Update the record of this piece's position in the game's position map
             positions.remove(fromLoc);
             positions.put(toLoc, selectedPiece);
@@ -154,8 +157,7 @@ public class Game {
             selectedPiece.updateLoc(toLoc);
         }
 
-        //TODO: send message with updated board state.
-        //incorporate score
+        //Broadcast update message to all entities
         sendUpdateMessage();
 
     }
@@ -168,17 +170,29 @@ public class Game {
         lightPlayerTurn = !lightPlayerTurn;
         Message update = new UpdateGame(lightPieces, darkPieces, lightPlayerTurn);
 
-        //Send update to player one and player two, and each spectator.
-        try {
-            lightPlayer.getSession().getRemote().sendString(gson.toJson(update));
-            darkPlayer.getSession().getRemote().sendString(gson.toJson(update));
-            for (int i = 0; i < spectators.size(); i++) {
-                spectators.get(i).getSession().getRemote().sendString(gson.toJson(update));
+        //Send the message to all entities.
+        broadcastMessage(update);
+    }
+
+    /**
+     * Method: Broadcast Message
+     * @param msg
+     */
+    public void broadcastMessage(Message msg) {
+        for (Map.Entry mapElement : entities.entrySet()) {
+            Session currSession = (Session) mapElement.getKey();
+            try {
+                currSession.getRemote().sendString(gson.toJson(msg));
+            } catch (IOException e) {
+                System.out.println("IO Exception");
             }
-        } catch (IOException e) {
-            System.out.println("IO Exception");
         }
     }
+
+
+
+
+
 
     /**
      * Method: Send Error Message
@@ -193,9 +207,6 @@ public class Game {
             System.out.println("IO Exception");
         }
     }
-
-
-
 
     /**
      * Method: Validate Move

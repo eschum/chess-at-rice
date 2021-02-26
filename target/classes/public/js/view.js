@@ -151,19 +151,24 @@ document.addEventListener('DOMContentLoaded', function () {
  */
 function onMessage(msg) {
     let obj = JSON.parse(msg.data);
+    let log = document.getElementById('scrollBox');
+    let blank_log;
 
     switch(obj.type) {
         case "player_join":
             initialDrawBoard();
-            let log = document.getElementById('scrollBox');
             log.innerHTML += "<p class='log'>" + obj.name + " Connected<\p>";
-            let blank_log = document.querySelector(".scrollBox p:nth-last-child(1)");
+            blank_log = document.querySelector(".scrollBox p:nth-last-child(1)");
             blank_log.remove();
             log.scrollTop = log.scrollHeight;
             break;
         case "spectator_join":
-            isSpectator = true;
+            if (!isLightPlayer && !isDarkPlayer) isSpectator = true;
             gameStarted = true;
+            log.innerHTML += "<p class='log'>" + obj.name + " Connected<\p>";
+            blank_log = document.querySelector(".scrollBox p:nth-last-child(1)");
+            blank_log.remove();
+            log.scrollTop = log.scrollHeight;
             break;
         case "start_game":
             gameStarted = true; //set the game status to start playing.
@@ -294,6 +299,10 @@ function returnClickPosition(e) {
  *
  */
 function sendMove() {
+    if (isSpectator) {
+        alert("You Are Just Spectating and Cannot Move");
+        return;
+    }
     if (moveOrigin != null && moveDestination != null) {
         //send the move to the model. A stub for now that just changes the player.
         let log = document.querySelector(".scrollBox p:nth-last-child(1)");
@@ -316,6 +325,10 @@ function sendMove() {
  * Helper function to send a chat message to all entities (player, spectators) in the game.
  */
 function sendChatMessage() {
+    if (moveOrigin != null) {
+        alert("Cannot Send a Message Move In Progress. Clear Move to send a Message first.");
+        return;
+    }
     //Anyone (a spectator or player) can send a message.
     let textValue = document.getElementById("chat-field").value;
     let msgJSON = {type: "chat", content: textValue};
