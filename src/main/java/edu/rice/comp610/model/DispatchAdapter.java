@@ -1,5 +1,7 @@
 package edu.rice.comp610.model;
 
+import edu.rice.comp610.model.game.Game;
+import edu.rice.comp610.model.game.Player;
 import org.eclipse.jetty.websocket.api.Session;
 
 import java.awt.*;
@@ -26,17 +28,19 @@ public class DispatchAdapter {
 
     /**
      * Connect Players: Method to associate our connection
-     * @param user
      * @return
      */
-    public static int connectPlayer(Session user) {
-        if (playerOne == null) {
-            playerOne = user;
+    public static int connectPlayer(Player player, Game game) {
+        if (game.getLightPlayer() == null) {
+            game.addPlayer(player);
             return 1;
-        } else if (playerTwo == null) {
-            playerTwo = user;
+        } else if (game.getDarkPlayer() == null) {
+            game.addPlayer(player);
             return 2;
         } else {
+            //return 0 if spectator.
+
+            //Add here to add the spectator
             return 0;
         }
     }

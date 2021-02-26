@@ -2,6 +2,7 @@ package edu.rice.comp610.model.game;
 
 import edu.rice.comp610.model.message.Message;
 import edu.rice.comp610.model.message.PlayerJoin;
+import edu.rice.comp610.model.message.SpectatorJoin;
 import org.eclipse.jetty.websocket.api.Session;
 
 public class Player {
@@ -12,8 +13,9 @@ public class Player {
     public boolean isDarkPlayer;
     public boolean isSpectator;
 
-    public Player(String userName) {
+    public Player(String userName, Session userSession) {
         name = userName;
+        sess = userSession;
         joinMessage = new PlayerJoin(this);
     }
 
@@ -33,13 +35,10 @@ public class Player {
         return joinMessage;
     }
 
-    /**
-     * setSession: Helper function to save the session of the player
-     * @param userSession
-     */
-    public void setSession(Session userSession) {
-        sess = userSession;
+    public Message getSpectatorJoin() {
+        return new SpectatorJoin(this);
     }
+
 
     /**
      * Get Session: return the Session associated with this player.

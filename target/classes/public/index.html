@@ -19,11 +19,14 @@
         }
         h3 {text-align: center;}
         .scrollBox {
-            height: 480px;
-            width: 90%;
+            height: 460px;
+            width: 100%;
             border: 1px solid #ccc;
             overflow: auto;
             padding: 10px
+        }
+        .txt {
+            width: 100px;
         }
     </style>
 </head>
@@ -39,6 +42,11 @@
                     <button class="btn btn-primary" id="btn-clear">Clear Move</button>
                 </div>
                 <div class="scrollBox" id="scrollBox">
+                </div>
+                <br>
+                <div class="input-group">
+                    <input class="form-control txt" type="text" id="chat-field" placeholder="Enter text to Chat">
+                    <button class="btn btn-primary" id="btn-send-text">Send</button>
                 </div>
             </div>
         </div>

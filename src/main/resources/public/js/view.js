@@ -123,17 +123,13 @@ window.onload = function() {
     //Buttons for interacting with the game.
     $("#btn-send").click(sendMove);
     $("#btn-clear").click(clearMove);
+    $("#btn-send-text").click(sendChatMessage);
 
     //Remove all the balls in case the browser is refreshed.
     //clear();
 
     //Send canvas dimensions to the controller.
     //canvasDims();
-
-    //Establish an Interval to update the Ball World view.
-
-    //setInterval(updateBoard, update_interval);
-
 };
 
 window.addEventListener('load', (event) => {
@@ -160,14 +156,15 @@ function onMessage(msg) {
         case "player_join":
             initialDrawBoard();
             let log = document.getElementById('scrollBox');
-            let align = lightPlayerTurn ? "style=\"text-align:left\"" : "style=\"text-align:right\"";
-            let turn = lightPlayerTurn ? "Player 1: " : "Player 2: ";
-            log.innerHTML += "<p class='log'" + align + ">" + obj.name + " Connected<\p>";
+            log.innerHTML += "<p class='log'>" + obj.name + " Connected<\p>";
             let blank_log = document.querySelector(".scrollBox p:nth-last-child(1)");
             blank_log.remove();
             log.scrollTop = log.scrollHeight;
             break;
-            //TO DO - Act on the "start_game" message - to render the board.
+        case "spectator_join":
+            isSpectator = true;
+            gameStarted = true;
+            break;
         case "start_game":
             gameStarted = true; //set the game status to start playing.
             isLightPlayer = obj.lightPlayer;
@@ -175,9 +172,14 @@ function onMessage(msg) {
             isSpectator = obj.spectator;
             lightPlayerTurn = obj.lightPlayerTurn;
             updateBoard_piece(obj);
+            break;
         case "update_game":
             lightPlayerTurn = obj.lightPlayerTurn;
             updateBoard_piece(obj);
+            break;
+        case "chat":
+            insertChat(obj.content);
+            break;
             default:
             break;
     }
@@ -239,7 +241,8 @@ function reportClick(e) {
 
     if (moveOrigin == null) {
         moveOrigin = boardPos;
-        let align = lightPlayerTurn ? "style=\"text-align:left\"" : "style=\"text-align:right\"";
+        let align = (lightPlayerTurn && isLightPlayer) || (!lightPlayerTurn && isDarkPlayer)
+            ? "style=\"text-align:right\"" : "style=\"text-align:left\"";
         let turn = lightPlayerTurn ? "Player 1: " : "Player 2: ";
         log.innerHTML += "<p class='log'" + align + ">" + turn + boardPos + "<\p>";
         let blank_log = document.querySelector(".scrollBox p:nth-last-child(1)");
@@ -252,6 +255,15 @@ function reportClick(e) {
     } else {
         //Do nothing - wait for Clear move
     }
+}
+
+/**
+ * Helper function to insert a chat string into the log box for everyone, player and spectator.
+ * @param str
+ */
+function insertChat(str) {
+    let log = document.getElementById('scrollBox');
+    log.innerHTML += "<p class='log' style='text-align: left'>" + str + "<\p>";
 }
 
 /**
@@ -294,6 +306,22 @@ function sendMove() {
         alert("Must have an origin and destination move selected!");
     }
 }
+
+/**
+ * Helper function to send a chat message to all entities (player, spectators) in the game.
+ */
+function sendChatMessage() {
+    //Anyone (a spectator or player) can send a message.
+    let textValue = document.getElementById("chat-field").value;
+    let msgJSON = {type: "chat", content: textValue};
+    let msg = JSON.stringify(msgJSON);
+    socket.send(msg);
+
+    //clear the textbox
+    document.getElementById("chat-field").value = "";
+}
+
+
 
 /**
  * Function to clear the move and remove the text from the log.

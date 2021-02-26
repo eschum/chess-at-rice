@@ -19,10 +19,9 @@ import java.util.Map;
 public class WebSocketController {
     DispatchAdapter da;
     Gson gson;
-    Player p1;
-    Player p2;
     Game game;
     Map<Session, Game> allSessions; //Map each session to the appropriate game, to forward moves.
+    int userCounter;
 
     public WebSocketController() {
         da = new DispatchAdapter();
@@ -34,44 +33,53 @@ public class WebSocketController {
     public void onConnect(Session userSession) {
         System.out.print("New Session: " + userSession + "\n");
 
-        //Identify the connection
-        int connected = DispatchAdapter.connectPlayer(userSession);
+        //Player will be instantiated upon login and entering the System.
+        Player player = new Player("user" + userCounter++, userSession);
+
+        //Player will have also selected or instantiated a new game.
+        if (game == null) game = new Game();
+
+        //Pass to Dispatch Adapter to process.
+        int connected = DispatchAdapter.connectPlayer(player, game);
+
         System.out.print(connected);
         if (connected == 1) {
-            //start a new game.
-            p1 = new Player("Player One");
-            p1.setSession(userSession);
-
             try {
-                p1.getSession().getRemote().sendString(gson.toJson(p1.getJoinMessage()));
+                player.getSession().getRemote().sendString(gson.toJson(player.getJoinMessage()));
             } catch (IOException e) {
                 System.out.println("IO Exception");
             }
+            allSessions.put(player.getSession(), game);
         } else if (connected == 2) {
-            p2 = new Player("Player Two");
-            p2.setSession(userSession);
+
             try {
-                p2.getSession().getRemote().sendString(gson.toJson(p2.getJoinMessage()));
-                p2.getSession().getRemote().sendString(gson.toJson(p1.getJoinMessage()));
-                p1.getSession().getRemote().sendString(gson.toJson(p2.getJoinMessage()));
+                player.getSession().getRemote().sendString(gson.toJson(player.getJoinMessage()));
+                player.getSession().getRemote().sendString(gson.toJson(game.getLightPlayer().getJoinMessage()));
+                game.getLightPlayer().getSession().getRemote().sendString(gson.toJson(player.getJoinMessage()));
             } catch (IOException e) {
                 System.out.println("IO Exception");
             }
 
-            //As player two is now connected, we can start the game.
-            //This code here only temporarily. Eventually handle this with the dispatch adapter.
-
-            //Note: passing game while calling on p1 will lead to reflexive calls.
-            game = new Game(p1, p2);
-            allSessions.put(p1.getSession(), game);
-            allSessions.put(p2.getSession(), game);
+            allSessions.put(player.getSession(), game);
 
             try {
+                Player p1 = game.getLightPlayer();
+                Player p2 = game.getDarkPlayer();
                 p1.getSession().getRemote().sendString(gson.toJson(sendStartMsg(game, true, false, false)));
                 p2.getSession().getRemote().sendString(gson.toJson(sendStartMsg(game, false, true, false)));
             } catch (IOException e) {
                 System.out.println("IO Exception");
             }
+        } else if (connected == 0) {
+            //if connected is 0, that means the person is a spectator.
+
+            allSessions.put(player.getSession(), game);
+            try {
+                player.getSession().getRemote().sendString(gson.toJson(player.getSpectatorJoin()));
+            } catch (IOException e) {
+                System.out.println("IO Exception");
+            }
+            game.addSpectator(player);
         }
     }
 
@@ -95,20 +103,27 @@ public class WebSocketController {
     public void onMessage(Session userSession, String message) {
         System.out.print(message);
         JsonObject parsedMsg = gson.fromJson(message, JsonObject.class);
+
         String type = parsedMsg.get("type").toString();
         type = type.substring(1, type.length() - 1);
-        String from = parsedMsg.get("fromLoc").toString();
-        from = from.substring(1, from.length() - 1);
-        String to = parsedMsg.get("toLoc").toString();
-        to = to.substring(1, to.length() - 1);
 
         System.out.print(type);
         //Take action based on message type.
         if (type.equals("move")) {
-            //allSessions map will get the Game that the session belongs to.
+            //Get the to and from fields.
+            String from = parsedMsg.get("fromLoc").toString();
+            from = from.substring(1, from.length() - 1);
+            String to = parsedMsg.get("toLoc").toString();
+            to = to.substring(1, to.length() - 1);
             //Delegate that game to process the action and follow up with response.
-            System.out.print("It was a move");
             allSessions.get(userSession).processMove(userSession, from, to);
+        } else if (type.equals("chat")) {
+            System.out.print("Processed a chat message");
+            //Get the content field.
+            String content = parsedMsg.get("content").toString();
+            content = content.substring(1, content.length() - 1);
+            //Delegate that game to process sending the chat to all participants.
+            allSessions.get(userSession).processChat(userSession, content);
         }
 
 

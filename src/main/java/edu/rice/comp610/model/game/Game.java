@@ -1,6 +1,7 @@
 package edu.rice.comp610.model.game;
 
 import com.google.gson.Gson;
+import edu.rice.comp610.model.message.ChatMessage;
 import edu.rice.comp610.model.message.Message;
 import edu.rice.comp610.model.message.UpdateGame;
 import edu.rice.comp610.model.piece.*;
@@ -20,14 +21,73 @@ public class Game {
     private Player darkPlayer;
     private boolean lightPlayerTurn;
     private Gson gson;
+    private Map<Session, Player> entities;
 
     public Game(Player p1, Player p2) {
         gson = new Gson();
+        entities = new HashMap<>();
         lightPlayer = p1;
         darkPlayer = p2;
+        entities.put(p1.getSession(), p1);
+        entities.put(p2.getSession(), p2);
         spectators = new ArrayList<>();
         initNewGame();
     }
+
+    public Game() {
+        gson = new Gson();
+        entities = new HashMap<>();
+        spectators = new ArrayList<>();
+        initNewGame();
+    }
+
+    //public void addPlayer
+    public void addPlayer(Player p) {
+        if (lightPlayer == null) {
+            lightPlayer = p;
+            entities.put(p.getSession(), p);
+        } else if (darkPlayer == null) {
+            darkPlayer = p;
+            entities.put(p.getSession(), p);
+        }
+    }
+
+    /**
+     * Method: Add Spectator
+     * Description: Mutator method to add a spectator.
+     * @param = - Player to add to spectator list.
+     */
+
+    public void addSpectator(Player p) {
+        spectators.add(p);
+        entities.put(p.getSession(), p);
+
+        //Give the spectator a manual update of the board status.
+        Message update = new UpdateGame(lightPieces, darkPieces, lightPlayerTurn);
+        try {
+            p.getSession().getRemote().sendString(gson.toJson(update));
+        } catch (IOException e) {
+            System.out.println("IO Exception");
+        }
+    }
+
+
+    /**
+     * Accessor to return the light player .
+     * @return
+     */
+    public Player getLightPlayer() {
+        return lightPlayer;
+    }
+
+    /**
+     * Accessor to return the dark player.
+     * @return
+     */
+    public Player getDarkPlayer() {
+        return darkPlayer;
+    }
+
 
     /**
      * Method: Process Move
@@ -138,6 +198,31 @@ public class Game {
     }
 
     /**
+     * Method: Process Chat
+     * Receive a chat message; and distribute it to the chat history of everyone in this game.
+     * @param userSession
+     * @param content
+     */
+    public void processChat(Session userSession, String content) {
+        Player sender = entities.get(userSession);
+        String spectatorDisclaimer = (sender != lightPlayer && sender != darkPlayer) ? "(Spectator)" : "";
+        String chatMessageText = sender.getName() + " " + spectatorDisclaimer + ": " + content;
+
+        //Wrap the message to be interpreted correctly by the view.
+        ChatMessage message = new ChatMessage(chatMessageText);
+
+        //Send the message to every entity.
+        for (Map.Entry mapElement : entities.entrySet()) {
+            Session currSession = (Session) mapElement.getKey();
+            try {
+                currSession.getRemote().sendString(gson.toJson(message));
+            } catch (IOException e) {
+                System.out.println("IO Exception");
+            }
+        }
+
+    }
+    /**
      * Get Light Pieces
      * Helper method to return the array list of pieces.
      * @return
@@ -153,15 +238,6 @@ public class Game {
      */
     public ArrayList<Piece> getDarkPieces() {
         return darkPieces;
-    }
-
-    /**
-     * Method: Add Spectator
-     * Description: Mutator method to add a spectator.
-     * @param player
-     */
-    public void addSpectator(Player player) {
-        spectators.add(player);
     }
 
     /**
