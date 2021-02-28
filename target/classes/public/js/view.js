@@ -297,6 +297,7 @@ function reportClick(e) {
 function insertChat(str) {
     let log = document.getElementById('scrollBox');
     log.innerHTML += "<p class='log' style='text-align: left'>" + str + "<\p>";
+    log.scrollTop = log.scrollHeight;
 }
 
 /**
