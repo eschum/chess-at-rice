@@ -206,10 +206,11 @@ function onMessage(msg) {
 
 /**
  * Helper method to respond when a connection is opened.
- * We want to check the cookie for the requested
+ * We want to check the cookie for the requested data, and send a message to the server.
  * @param event
  */
 function onConnect(event) {
+    let role;
     console.log("Connection was just opened!");
     console.log("Cookie contents: " + document.cookie);
 
@@ -219,9 +220,19 @@ function onConnect(event) {
         .find(row => row.startsWith('username='))
         .split('=')[1];
 
-    console.log("USername: " + username);
+    //Get the role cookie
+    role = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('role='))
+        .split('=')[1];
 
-    //socket.send('Hello Server!');
+    //log the username in the console for debugging purposes.
+    console.log("Username: " + username + "; role: " + role);
+
+    //Send the connection message to the server.
+    let msgJSON = {type: "join", username: username, role: role };
+    let msg = JSON.stringify(msgJSON);
+    socket.send(msg);
 }
 
 
@@ -389,6 +400,7 @@ function sendChatMessage() {
     //clear the textbox
     document.getElementById("chat-field").value = "";
 }
+
 
 
 

@@ -57,12 +57,13 @@ $(document).ready(function() {
 function newGame() {
     console.log("NEW GAME");
     console.log("User ID: " + userID);
-    
+
     //Post to the server with our intent to create a new game, and the user name.
     $.post("/new", { username: userID }, function(data) {
         //Set Cookies - user ID and game ID - later this will include / be replaced with an access token.
         document.cookie = "username=" + userID;
         document.cookie = "gameid=" + data.gameid;
+        document.cookie = "role=lightPlayer";
         window.location.replace("/match.html");  //use replace method so that browsing history is not appended
         //To save from infinite "back" loop
     }, "json");

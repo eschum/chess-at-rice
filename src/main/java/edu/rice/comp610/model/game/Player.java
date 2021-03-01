@@ -20,6 +20,7 @@ public class Player {
     }
     public Player(String userName) {
         name = userName;
+        joinMessage = new PlayerJoin(this);
     }
 
     /**
@@ -30,6 +31,10 @@ public class Player {
         name = n;
     }
 
+    /**
+     * Helper mutator method to set the session.
+     * @param userSession
+     */
     public void setSession(Session userSession) {
         sess = userSession;
     }

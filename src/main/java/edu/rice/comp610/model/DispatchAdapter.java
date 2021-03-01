@@ -1,5 +1,7 @@
 package edu.rice.comp610.model;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import edu.rice.comp610.model.game.Game;
 import edu.rice.comp610.model.game.Player;
 import org.eclipse.jetty.websocket.api.Session;
@@ -7,6 +9,7 @@ import org.eclipse.jetty.websocket.api.Session;
 import java.awt.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,22 +18,81 @@ import java.util.Map;
  * This adapter interfaces with the view (paint objects) and the controller.
  */
 public class DispatchAdapter {
-    private static Session playerOne;
-    private static Session playerTwo;
     private static PropertyChangeSupport pcs;
     public static int side = 600;
     private int gameCounter = 0;
-    //private Map<String, Game> allGames;
-    Map<Session, Game> allSessions;
+    private Map<String, Game> allPlayersToGames;
+    private Map<Session, Game> allSessions;
     private Map<String, Player> allPlayers;  //Need to have a hashmap to quickly set the session of each player
+    private Gson gson;
 
     /**
      * Constructor call.
      */
     public DispatchAdapter() {
-        //allGames = new HashMap<>();
+        gson = new Gson();
+        allPlayersToGames = new HashMap<>();
         allSessions = new HashMap<>();
         allPlayers = new HashMap<>();
+    }
+
+    /**
+     * Handle messages from the WebSocketController
+     * @param userSession
+     * @param message
+     */
+    public void processMessage(Session userSession, String message) {
+        //System.out.print(message);
+        JsonObject parsedMsg = gson.fromJson(message, JsonObject.class);
+
+        String type = parsedMsg.get("type").toString();
+        type = type.substring(1, type.length() - 1);
+
+        System.out.print(type);
+        //Take action based on message type.
+        if (type.equals("join")) {
+            //Get the username and role fields.
+            String username = parsedMsg.get("username").toString();
+            username = username.substring(1, username.length() - 1);
+            String role = parsedMsg.get("role").toString();
+            role = role.substring(1, role.length() - 1);
+            System.out.print(username);
+            System.out.print(role);
+            connectUser(userSession, username, role);
+
+        } else if (type.equals("move")) {
+            //Get the to and from fields.
+            String from = parsedMsg.get("fromLoc").toString();
+            from = from.substring(1, from.length() - 1);
+            String to = parsedMsg.get("toLoc").toString();
+            to = to.substring(1, to.length() - 1);
+            //Delegate that game to process the action and follow up with response.
+            allSessions.get(userSession).processMove(userSession, from, to);
+
+        } else if (type.equals("chat")) {
+            System.out.print("Processed a chat message");
+            //Get the content field.
+            String content = parsedMsg.get("content").toString();
+            content = content.substring(1, content.length() - 1);
+            //Delegate that game to process sending the chat to all participants.
+            allSessions.get(userSession).processChat(userSession, content);
+        }
+    }
+
+    private void connectUser(Session userSession, String username, String role) {
+        Player player = allPlayers.get(username);
+
+        if (role.equals("lightPlayer")) {
+            //Set the Session of the player.
+            player.setSession(userSession);
+            allSessions.put(userSession, allPlayersToGames.get(username));
+            //Message player 1.
+            try {
+                player.getSession().getRemote().sendString(gson.toJson(player.getJoinMessage()));
+            } catch (IOException e) {
+                System.out.println("IO Exception");
+            }
+        }
     }
 
     /**
@@ -47,6 +109,7 @@ public class DispatchAdapter {
         Player p1 = new Player(username);
         game.addPlayer(p1);
         allPlayers.put(username, p1);
+        allPlayersToGames.put(username, game);
 
         System.out.print("New Game Started\n");
         return gameID;

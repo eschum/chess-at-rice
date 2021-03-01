@@ -21,10 +21,13 @@ public class ChessSocketController {
         port(getHerokuAssignedPort());
         staticFiles.location("/public");
 
-        webSocket("/chess", WebSocketController.class);
-
         Gson gson = new Gson();
         DispatchAdapter dis = new DispatchAdapter();
+
+        WebSocketController wsc = new WebSocketController(dis);
+
+        webSocket("/chess", wsc);
+
 
         post("/load/:type", (request, response) -> {
             String ballType = request.queryParams("strategies");

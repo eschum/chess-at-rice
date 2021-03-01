@@ -63,6 +63,7 @@ function newGame() {
         //Set Cookies - user ID and game ID - later this will include / be replaced with an access token.
         document.cookie = "username=" + userID;
         document.cookie = "gameid=" + data.gameid;
+        document.cookie = "role=lightPlayer";
         window.location.replace("/match.html");  //use replace method so that browsing history is not appended
         //To save from infinite "back" loop
     }, "json");
