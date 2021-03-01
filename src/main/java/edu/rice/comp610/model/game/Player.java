@@ -18,6 +18,9 @@ public class Player {
         sess = userSession;
         joinMessage = new PlayerJoin(this);
     }
+    public Player(String userName) {
+        name = userName;
+    }
 
     /**
      * Set Name: Helper function to set the name of the player.
@@ -25,6 +28,10 @@ public class Player {
      */
     public void setName(String n) {
         name = n;
+    }
+
+    public void setSession(Session userSession) {
+        sess = userSession;
     }
 
     public String getName() {

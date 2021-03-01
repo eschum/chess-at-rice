@@ -32,14 +32,20 @@ public class ChessSocketController {
             //return gson.toJson(obj);
         });
 
-        get("/update", (request, response) -> gson.toJson(dis.updateBallWorld()));
+        //Start a new game, instantiating the game / player .
+        post("/new", (request, response) -> {
+            String username = request.queryParams("username");
+            System.out.print("User " + username + " requested a new game\n");
+            //Instantiate a new game
+            dis.addNewGame(username);
+            //redirect to the match interface.
+            //response.redirect("/match.html");
+            return "OK";
+        });
 
-//        post("/canvas/dims", (request, response) -> {
-//            DispatchAdapter.setCanvasDims(new Point(Integer.parseInt(request.queryParams("width")),
-//                    Integer.parseInt(request.queryParams("height"))));
-//            System.out.print("Canvas dimensions set in model");
-//            return "Canvas dimensions set in model";
-//        });
+
+
+
     }
 
     /**

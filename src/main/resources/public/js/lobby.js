@@ -18,11 +18,6 @@ window.onload = function() {
     $("#btn-join").click(joinGame);
     $("#btn-leave").click(leaveLobby);
 
-    //Remove all the balls in case the browser is refreshed.
-    //clear();
-
-    //Send canvas dimensions to the controller.
-    //canvasDims();
 };
 
 /**
@@ -62,6 +57,14 @@ $(document).ready(function() {
 function newGame() {
     console.log("NEW GAME");
     console.log("User ID: " + userID);
+
+    //Set the cookie of our user name - later to be the access token.
+
+    //Post to the server with our intent to create a new game, and the user name.
+    $.post("/new", { username: userID }, function(data) {
+        console.log(data.game);
+    }, "json");
+    //window.location.replace("/match.html");  //replace so that
 }
 
 /**

@@ -7,7 +7,7 @@
     <script src="js/jquery-3.4.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-    <script src="js/view.js"></script>
+    <script src="js/lobby.js"></script>
     <style>
         html,body
         {
@@ -25,38 +25,67 @@
             overflow: auto;
             padding: 10px
         }
-        .txt {
-            width: 100px;
+        #gameTable {
+            /*width: 600px;*/
         }
+
+        #gameTable .highlight td{
+            background-color: #002169;
+            color: #FFFFFF;
+        }
+
+
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="row">
-        <div class="col text-center my-auto mx-auto">
-            <h3>Chess@Rice</h3>
-            <div>
-                <div>
-                    <button class="btn btn-primary" id="btn-send">Send Move</button>
-                    <button class="btn btn-primary" id="btn-clear">Clear Move</button>
-                </div>
-                <div class="scrollBox" id="scrollBox">
-                </div>
-                <br>
-                <div class="input-group">
-                    <input class="form-control txt" type="text" id="chat-field" placeholder="Enter text to Chat">
-                    <button class="btn btn-primary" id="btn-send-text">Send</button>
-                </div>
+        <div class=" text-center my-auto mx-auto">
+            <!--Page Title / Table-->
+            <br>
+            <h3>Chess@Rice Lobby</h3>
+            <br>
+            <!--Table For Game Entries-->
+            <table class="table table-hover" id="gameTable">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="gameID">Game ID</th>
+                    <th scope="p1">Player One</th>
+                    <th scope="p2">Player Two</th>
+                    <th scope="time">Time</th>
+                    <th scope="score">Score</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="gameid">Game1</td>
+                    <td class="lightplayer">Eric</td>
+                    <td class="darkplayer">Jim</td>
+                    <td class="time"></td>
+                    <td class="score"></td>
+                </tr>
+                <tr>
+                    <td class="gameid">Game2</td>
+                    <td class="lightplayer">Zoran</td>
+                    <td class="darkplayer"></td>
+                    <td class="time"></td>
+                    <td class="score"></td>
+                </tr>
+                </tbody>
+            </table>
+            <!--List Of Buttons -->
+            <div class="input-group mx-auto text-center">
+                <button class="btn btn-primary mr-1" id="btn-new">New Game</button>
+                <button class="btn btn-primary mr-1" id="btn-join">Join</button>
+                <button class="btn btn-primary mr-1" id="btn-leave">Leave</button>
             </div>
         </div>
-        <div class ="col my-auto mx-auto text-center">
-            <canvas width="600" height="600" style="border: 0px solid #000000"></canvas>
-        </div>
     </div>
-    <br>
-
 </div>
+
+
+
 
 <br>
 

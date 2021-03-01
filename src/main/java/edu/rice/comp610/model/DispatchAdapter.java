@@ -7,6 +7,8 @@ import org.eclipse.jetty.websocket.api.Session;
 import java.awt.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -17,14 +19,35 @@ public class DispatchAdapter {
     private static Session playerTwo;
     private static PropertyChangeSupport pcs;
     public static int side = 600;
+    private int gameCounter = 0;
+    private Map<String, Game> allGames;
+    Map<Session, Game> allSessions;
 
     /**
      * Constructor call.
      */
     public DispatchAdapter() {
-        playerOne = null;
-        playerTwo = null;
+        allGames = new HashMap<>();
+        allSessions = new HashMap<>();
     }
+
+    /**
+     * Method: Add New Game.
+     * Create a new game, and associate it to the directory of all games.
+     * Instantiate a player with the username that wanted to great the new game.
+     * @param username
+     */
+    public void addNewGame(String username) {
+        Game game = new Game();
+        //The gameCounter string will serve as the key for the game in the allGames map.
+        allGames.put("Game" + gameCounter++, game);
+        Player p1 = new Player(username);
+        game.addPlayer(p1);
+
+        System.out.print("New Game Started\n");
+    }
+
+
 
     /**
      * Connect Players: Method to associate our connection

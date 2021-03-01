@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chess@Rice</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="js/view.js"></script>
+    <style>
+        html,body
+        {
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+            padding: 0px;
+            overflow-x: hidden;
+        }
+        h3 {text-align: center;}
+        .scrollBox {
+            height: 460px;
+            width: 100%;
+            border: 1px solid #ccc;
+            overflow: auto;
+            padding: 10px
+        }
+        .txt {
+            width: 100px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row">
+        <div class="col text-center my-auto mx-auto">
+            <h3>Chess@Rice</h3>
+            <div>
+                <div>
+                    <button class="btn btn-primary" id="btn-send">Send Move</button>
+                    <button class="btn btn-primary" id="btn-clear">Clear Move</button>
+                </div>
+                <div class="scrollBox" id="scrollBox">
+                </div>
+                <br>
+                <div class="input-group">
+                    <input class="form-control txt" type="text" id="chat-field" placeholder="Enter text to Chat">
+                    <button class="btn btn-primary" id="btn-send-text">Send</button>
+                </div>
+            </div>
+        </div>
+        <div class ="col my-auto mx-auto text-center">
+            <canvas width="600" height="600" style="border: 0px solid #000000"></canvas>
+        </div>
+    </div>
+    <br>
+
+</div>
+
+<br>
+
+<!--<div class="container canvas">-->
+<!--        <canvas width="800" height="800" style="border: 1px solid #000000"></canvas>-->
+<!--</div>-->
+
+</body>
+</html>
