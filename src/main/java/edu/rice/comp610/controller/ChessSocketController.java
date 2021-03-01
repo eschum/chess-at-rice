@@ -1,6 +1,7 @@
 package edu.rice.comp610.controller;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import edu.rice.comp610.model.DispatchAdapter;
 import java.awt.*;
 import static spark.Spark.*;
@@ -32,15 +33,16 @@ public class ChessSocketController {
             //return gson.toJson(obj);
         });
 
-        //Start a new game, instantiating the game / player .
+        //Start a new game, instantiating the game / player.
         post("/new", (request, response) -> {
             String username = request.queryParams("username");
             System.out.print("User " + username + " requested a new game\n");
             //Instantiate a new game
-            dis.addNewGame(username);
-            //redirect to the match interface.
-            //response.redirect("/match.html");
-            return "OK";
+            String gameID = dis.addNewGame(username);
+            JsonObject obj = new JsonObject();
+            obj.addProperty("gameid", gameID);
+
+            return obj;
         });
 
 

@@ -20,15 +20,17 @@ public class DispatchAdapter {
     private static PropertyChangeSupport pcs;
     public static int side = 600;
     private int gameCounter = 0;
-    private Map<String, Game> allGames;
+    //private Map<String, Game> allGames;
     Map<Session, Game> allSessions;
+    private Map<String, Player> allPlayers;  //Need to have a hashmap to quickly set the session of each player
 
     /**
      * Constructor call.
      */
     public DispatchAdapter() {
-        allGames = new HashMap<>();
+        //allGames = new HashMap<>();
         allSessions = new HashMap<>();
+        allPlayers = new HashMap<>();
     }
 
     /**
@@ -37,14 +39,17 @@ public class DispatchAdapter {
      * Instantiate a player with the username that wanted to great the new game.
      * @param username
      */
-    public void addNewGame(String username) {
+    public String addNewGame(String username) {
         Game game = new Game();
         //The gameCounter string will serve as the key for the game in the allGames map.
-        allGames.put("Game" + gameCounter++, game);
+        String gameID = "Game" + gameCounter++;
+        //allGames.put(gameID, game);
         Player p1 = new Player(username);
         game.addPlayer(p1);
+        allPlayers.put(username, p1);
 
         System.out.print("New Game Started\n");
+        return gameID;
     }
 
 

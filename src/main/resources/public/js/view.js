@@ -22,6 +22,9 @@ let isDarkPlayer = false;
 let moveOrigin = null;
 let moveDestination = null;
 
+//Player Data
+let username;
+
 /**
  * Create the ball world app for a canvas
  * @param canvas The canvas to draw balls on
@@ -119,6 +122,10 @@ window.onload = function() {
         console.log('Message from server ', event.data);
     });
 
+    socket.addEventListener('open', function (event) {
+        onConnect(event);
+    });
+
 
     //Buttons for interacting with the game.
     $("#btn-send").click(sendMove);
@@ -195,6 +202,26 @@ function onMessage(msg) {
             default:
             break;
     }
+}
+
+/**
+ * Helper method to respond when a connection is opened.
+ * We want to check the cookie for the requested
+ * @param event
+ */
+function onConnect(event) {
+    console.log("Connection was just opened!");
+    console.log("Cookie contents: " + document.cookie);
+
+    //Get the username cookie
+    username = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('username='))
+        .split('=')[1];
+
+    console.log("USername: " + username);
+
+    //socket.send('Hello Server!');
 }
 
 
