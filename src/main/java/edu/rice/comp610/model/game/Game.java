@@ -1,6 +1,7 @@
 package edu.rice.comp610.model.game;
 
 import com.google.gson.Gson;
+import edu.rice.comp610.model.DispatchAdapter;
 import edu.rice.comp610.model.message.ChatMessage;
 import edu.rice.comp610.model.message.ErrorMessage;
 import edu.rice.comp610.model.message.Message;
@@ -23,6 +24,7 @@ public class Game {
     private boolean lightPlayerTurn;
     private Gson gson;
     private Map<Session, Player> entities;
+    private String gameID;
 
     public Game(Player p1, Player p2) {
         gson = new Gson();
@@ -35,11 +37,21 @@ public class Game {
         initNewGame();
     }
 
-    public Game() {
-        gson = new Gson();
+    public Game(String ID) {
+        gson = DispatchAdapter.gson;
         entities = new HashMap<>();
         spectators = new ArrayList<>();
+        this.gameID = ID;
         initNewGame();
+    }
+
+    /**
+     * Method: Get ID
+     * Accessor method to return the String
+     * @return
+     */
+    public String getID() {
+        return this.gameID;
     }
 
     //public void addPlayer

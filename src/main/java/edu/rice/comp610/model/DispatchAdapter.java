@@ -10,6 +10,7 @@ import java.awt.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,10 +22,11 @@ public class DispatchAdapter {
     private static PropertyChangeSupport pcs;
     public static int side = 600;
     private int gameCounter = 0;
+    private ArrayList<Game> allGames;
     private Map<String, Game> allPlayersToGames;
     private Map<Session, Game> allSessions;
     private Map<String, Player> allPlayers;  //Need to have a hashmap to quickly set the session of each player
-    private Gson gson;
+    public static Gson gson;
 
     /**
      * Constructor call.
@@ -34,7 +36,37 @@ public class DispatchAdapter {
         allPlayersToGames = new HashMap<>();
         allSessions = new HashMap<>();
         allPlayers = new HashMap<>();
+        allGames = new ArrayList<>();
     }
+
+    /**
+     * Method: Get All Games
+     * Accessor method to return an Array List of all the games.
+     *
+     * @return An array list of all game objects.
+     */
+    public ArrayList<JsonObject> getAllGames() {
+        ArrayList<JsonObject> gameData = new ArrayList<>();
+        for (Game game: allGames) {
+            JsonObject obj = new JsonObject();
+            obj.addProperty("gameID", game.getID());
+            Player lightPlayer = game.getLightPlayer();
+            Player darkPlayer = game.getDarkPlayer();
+            if (lightPlayer != null)
+                obj.addProperty("lightPlayer", lightPlayer.getName());
+            else
+                obj.addProperty("lightPlayer", "NULL");
+            if (darkPlayer != null)
+                obj.addProperty("darkPlayer", darkPlayer.getName());
+            else
+                obj.addProperty("darkPlayer", "NULL");
+
+            gameData.add(obj);
+        }
+        return gameData;
+    }
+
+
 
     /**
      * Handle messages from the WebSocketController
@@ -102,14 +134,15 @@ public class DispatchAdapter {
      * @param username
      */
     public String addNewGame(String username) {
-        Game game = new Game();
         //The gameCounter string will serve as the key for the game in the allGames map.
         String gameID = "Game" + gameCounter++;
+        Game game = new Game(gameID);
         //allGames.put(gameID, game);
         Player p1 = new Player(username);
         game.addPlayer(p1);
         allPlayers.put(username, p1);
         allPlayersToGames.put(username, game);
+        allGames.add(game);
 
         System.out.print("New Game Started\n");
         return gameID;

@@ -18,6 +18,8 @@ window.onload = function() {
     $("#btn-join").click(joinGame);
     $("#btn-leave").click(leaveLobby);
 
+    refreshTable();
+
 };
 
 /**
@@ -67,7 +69,17 @@ function newGame() {
         window.location.replace("/match.html");  //use replace method so that browsing history is not appended
         //To save from infinite "back" loop
     }, "json");
+}
 
+function refreshTable() {
+    $.post("/refresh", function(data) {
+        //data will be an array of game data - note, it is not an array of Game objects.
+        //Loop through each game and add to table
+        data.forEach(function(game) {
+            console.log(game.gameID + ", " + game.lightPlayer + ", " + game.darkPlayer);
+        });
+
+    }, "json");
 }
 
 /**

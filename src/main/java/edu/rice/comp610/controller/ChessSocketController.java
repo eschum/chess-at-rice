@@ -21,20 +21,12 @@ public class ChessSocketController {
         port(getHerokuAssignedPort());
         staticFiles.location("/public");
 
-        Gson gson = new Gson();
         DispatchAdapter dis = new DispatchAdapter();
+        Gson gson = DispatchAdapter.gson;
 
         WebSocketController wsc = new WebSocketController(dis);
 
         webSocket("/chess", wsc);
-
-
-        post("/load/:type", (request, response) -> {
-            String ballType = request.queryParams("strategies");
-            String switchable = request.queryParams("switchable");
-            return "";
-            //return gson.toJson(obj);
-        });
 
         //Start a new game, instantiating the game / player.
         post("/new", (request, response) -> {
@@ -46,6 +38,11 @@ public class ChessSocketController {
             obj.addProperty("gameid", gameID);
 
             return obj;
+        });
+
+        //Respond with all games, so that we can refresh the table.
+        post("/refresh", (request, response) -> {
+            return gson.toJson(dis.getAllGames());
         });
 
 
