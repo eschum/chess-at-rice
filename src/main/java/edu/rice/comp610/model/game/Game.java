@@ -8,7 +8,6 @@ import edu.rice.comp610.model.message.Message;
 import edu.rice.comp610.model.message.UpdateGame;
 import edu.rice.comp610.model.piece.*;
 import org.eclipse.jetty.websocket.api.Session;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,14 +17,19 @@ public class Game {
     private ArrayList<Piece> lightPieces;
     private ArrayList<Piece> darkPieces;
     private Map<String, Piece> positions;
-    private ArrayList<Player> spectators;
+    private final ArrayList<Player> spectators;
     private Player lightPlayer;
     private Player darkPlayer;
     private boolean lightPlayerTurn;
-    private Gson gson;
-    private Map<Session, Player> entities;
+    private final Gson gson;
+    private final Map<Session, Player> entities;
     private String gameID;
 
+    /**
+     * Public Constructor - If we already have two players.
+     * @param p1 - first player
+     * @param p2 - first player
+     */
     public Game(Player p1, Player p2) {
         gson = new Gson();
         entities = new HashMap<>();
@@ -37,6 +41,10 @@ public class Game {
         initNewGame();
     }
 
+    /**
+     * Public Constructor - passing an intended game ID (String)
+     * @param ID - String of the game id.
+     */
     public Game(String ID) {
         gson = DispatchAdapter.gson;
         entities = new HashMap<>();
@@ -48,7 +56,7 @@ public class Game {
     /**
      * Method: Get ID
      * Accessor method to return the String
-     * @return
+     * @return String of game ID.
      */
     public String getID() {
         return this.gameID;
@@ -69,7 +77,7 @@ public class Game {
      * Method: Add Entity
      * Mutator to add the session - player mapping once the session joins as the
      * appropriate player.
-     * @param p
+     * @param p - Player to add to the entity list (once they have a connected session)
      */
     public void addEntity(Player p) {
         entities.put(p.getSession(), p);
@@ -78,10 +86,19 @@ public class Game {
     /**
      * Method: Add Spectator
      * Description: Mutator method to add a spectator when selected from the lobby.
-     * @param = - Player to add to spectator list.
+     * @param p Player to add to spectator list.
      */
     public void addSpectator(Player p) {
         spectators.add(p);
+    }
+
+    /**
+     * Method: Get Spectators
+     * Accessor method to return list of spectators.
+     * @return An ArrayList of the spectators of this game.
+     */
+    public ArrayList<Player> getSpectators() {
+        return spectators;
     }
 
     /**
@@ -102,10 +119,9 @@ public class Game {
         }
     }
 
-
     /**
-     * Accessor to return the light player .
-     * @return
+     * Accessor to return the light player.
+     * @return Player: lightPlayer.
      */
     public Player getLightPlayer() {
         return lightPlayer;
@@ -113,12 +129,11 @@ public class Game {
 
     /**
      * Accessor to return the dark player.
-     * @return
+     * @return - Player - darkPlayer
      */
     public Player getDarkPlayer() {
         return darkPlayer;
     }
-
 
     /**
      * Method: Process Move
@@ -127,9 +142,9 @@ public class Game {
      * Check to make sure that the player matches the type of piece that is attempted to be moved.
      * Then, process the validity of the move itself (can insert more advanced Chess logic in future)
      * Finally, respond with an update to the board, or an error message. To both players and all spectators.
-     * @param userSession
-     * @param fromLoc
-     * @param toLoc
+     * @param userSession - current session the "move" message is coming from.
+     * @param fromLoc - the from location (a String).
+     * @param toLoc - the to location (a String).
      */
     public void processMove(Session userSession, String fromLoc, String toLoc) {
         Piece selectedPiece = positions.get(fromLoc);
@@ -188,12 +203,12 @@ public class Game {
         String name = entities.get(userSession).getName();
         String move = name + ": " + fromLoc + " -> " + toLoc;
         sendUpdateMessage(move);
-
     }
 
     /**
      * Method: Send Update Message
      * Update the board state.
+     * @param move - A String with text describing the move that was just updated.
      */
     public void sendUpdateMessage(String move) {
         lightPlayerTurn = !lightPlayerTurn;
@@ -205,7 +220,7 @@ public class Game {
 
     /**
      * Method: Broadcast Message
-     * @param msg
+     * @param msg - A Message to send to every entity involved in the game.
      */
     public void broadcastMessage(Message msg) {
         for (Map.Entry mapElement : entities.entrySet()) {
@@ -218,16 +233,11 @@ public class Game {
         }
     }
 
-
-
-
-
-
     /**
      * Method: Send Error Message
      * Helper method to send an error message to the erring player.
-     * @param session
-     * @param errString
+     * @param session - the Session to send the error message to.
+     * @param errString - the String describing the error.
      */
     public void sendErrorMessage(Session session, String errString) {
         try {
@@ -243,8 +253,8 @@ public class Game {
      *
      * This assumes that processMove has already checked that the piece selected is of the correct team.
      * Do it this way so we don't pass userSession info to the validateMove method.
-     * @param selectedPiece
-     * @param toLoc
+     * @param selectedPiece - the Piece that is going to move.
+     * @param toLoc - the destination location for the piece.
      * @return - false if the move is invalid. True if the move is valid.
      */
     private boolean validateMove(Piece selectedPiece, String toLoc) {
@@ -257,7 +267,7 @@ public class Game {
     /**
      * Remove Piece
      * Helper method to remove a piece from the Array List containing the pieces for the appropriate team.
-     * @param targetPiece
+     * @param targetPiece - the Piece to remove
      */
     private void removePiece(Piece targetPiece) {
         ArrayList<Piece> pieces = targetPiece.getTeam() == 0 ? lightPieces : darkPieces;
@@ -267,8 +277,8 @@ public class Game {
     /**
      * Method: Process Chat
      * Receive a chat message; and distribute it to the chat history of everyone in this game.
-     * @param userSession
-     * @param content
+     * @param userSession - The Session that is sending the message.
+     * @param content - the String with contents of the message.
      */
     public void processChat(Session userSession, String content) {
         Player sender = entities.get(userSession);
@@ -289,27 +299,29 @@ public class Game {
         }
 
     }
+
     /**
-     * Get Light Pieces
-     * Helper method to return the array list of pieces.
-     * @return
+     * Method: Get Light Pieces
+     * Accessor method to return the Light Piece arraylist.
+     * @return - an ArrayList of the light pieces.
      */
     public ArrayList<Piece> getLightPieces() {
         return lightPieces;
     }
 
     /**
-     * Get Dark
-     * Helper method to return the array list of pieces.
-     * @return
+     * Method: Get Dark Pieces
+     * Helper accessor method to return the ArrayList of dark pieces.
+     * @return An ArrayList of the dark pieces.
      */
     public ArrayList<Piece> getDarkPieces() {
         return darkPieces;
     }
 
     /**
-     * Method: init
-     * Darw all pieces
+     * Method: init new game
+     * Initiate turn (light player), initiate all pieces, and
+     * register all pieces in the positions map
      */
     private void initNewGame() {
         lightPlayerTurn = true; //Light moves first per chess rules.

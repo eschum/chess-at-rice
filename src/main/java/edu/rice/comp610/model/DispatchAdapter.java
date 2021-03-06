@@ -6,9 +6,6 @@ import edu.rice.comp610.model.game.Game;
 import edu.rice.comp610.model.game.Player;
 import edu.rice.comp610.model.message.StartGame;
 import org.eclipse.jetty.websocket.api.Session;
-
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,13 +16,12 @@ import java.util.Map;
  * This adapter interfaces with the view (paint objects) and the controller.
  */
 public class DispatchAdapter {
-    private static PropertyChangeSupport pcs;
     public static int side = 600;
     private int gameCounter = 0;
-    private ArrayList<Game> allGames;
-    private Map<String, Game> allPlayersToGames;
-    private Map<Session, Game> allSessions;
-    private Map<String, Player> allPlayers;  //Need to have a hashmap to quickly set the session of each player
+    private final ArrayList<Game> allGames;
+    private final Map<String, Game> allPlayersToGames;
+    private final Map<Session, Game> allSessions;
+    private final Map<String, Player> allPlayers;  //Need to have a hashmap to quickly set the session of each player
     public static Gson gson;
 
     /**
@@ -42,7 +38,6 @@ public class DispatchAdapter {
     /**
      * Method: Get All Games
      * Accessor method to return an Array List of all the games.
-     *
      * @return An array list of all game objects.
      */
     public ArrayList<JsonObject> getAllGames() {
@@ -66,12 +61,10 @@ public class DispatchAdapter {
         return gameData;
     }
 
-
-
     /**
      * Handle messages from the WebSocketController
-     * @param userSession
-     * @param message
+     * @param userSession - session of the current connection from which a message was received
+     * @param message - String of the message contents.
      */
     public void processMessage(Session userSession, String message) {
         //System.out.print(message);
@@ -82,33 +75,42 @@ public class DispatchAdapter {
 
         System.out.print(type);
         //Take action based on message type.
-        if (type.equals("join")) {
-            //Get the username and role fields.
-            String username = parsedMsg.get("username").toString();
-            username = username.substring(1, username.length() - 1);
-            String role = parsedMsg.get("role").toString();
-            role = role.substring(1, role.length() - 1);
-            connectUser(userSession, username, role);
-
-        } else if (type.equals("move")) {
-            //Get the to and from fields.
-            String from = parsedMsg.get("fromLoc").toString();
-            from = from.substring(1, from.length() - 1);
-            String to = parsedMsg.get("toLoc").toString();
-            to = to.substring(1, to.length() - 1);
-            //Delegate that game to process the action and follow up with response.
-            allSessions.get(userSession).processMove(userSession, from, to);
-
-        } else if (type.equals("chat")) {
-            System.out.print("Processed a chat message");
-            //Get the content field.
-            String content = parsedMsg.get("content").toString();
-            content = content.substring(1, content.length() - 1);
-            //Delegate that game to process sending the chat to all participants.
-            allSessions.get(userSession).processChat(userSession, content);
+        //Get the username and role fields.
+        //Get the to and from fields.
+        //Delegate that game to process the action and follow up with response.
+        //Get the content field.
+        //Delegate that game to process sending the chat to all participants.
+        switch (type) {
+            case "join" -> {
+                String username = parsedMsg.get("username").toString();
+                username = username.substring(1, username.length() - 1);
+                String role = parsedMsg.get("role").toString();
+                role = role.substring(1, role.length() - 1);
+                connectUser(userSession, username, role);
+            }
+            case "move" -> {
+                String from = parsedMsg.get("fromLoc").toString();
+                from = from.substring(1, from.length() - 1);
+                String to = parsedMsg.get("toLoc").toString();
+                to = to.substring(1, to.length() - 1);
+                allSessions.get(userSession).processMove(userSession, from, to);
+            }
+            case "chat" -> {
+                System.out.print("Processed a chat message");
+                String content = parsedMsg.get("content").toString();
+                content = content.substring(1, content.length() - 1);
+                allSessions.get(userSession).processChat(userSession, content);
+            }
         }
     }
 
+    /**
+     * Method: Connect User.
+     * Takes action when the join message is received from the view/client
+     * @param userSession - session of the current connection from which a message was received
+     * @param username - user name string of the user in this connection.
+     * @param role - string of the role (lightPlayer, darkPlayer, or spectator)
+     */
     private void connectUser(Session userSession, String username, String role) {
         Player player = allPlayers.get(username);
         Game game = allPlayersToGames.get(username);
@@ -119,51 +121,55 @@ public class DispatchAdapter {
 
         game.addEntity(player);
 
-        if (role.equals("lightPlayer")) {
+        switch (role) {
+            case "lightPlayer":
 
-            //Message player 1.
-            try {
-                player.getSession().getRemote().sendString(gson.toJson(player.getJoinMessage()));
-            } catch (IOException e) {
-                System.out.println("IO Exception");
-            }
+                //Message player 1.
+                try {
+                    player.getSession().getRemote().sendString(gson.toJson(player.getJoinMessage()));
+                } catch (IOException e) {
+                    System.out.println("IO Exception");
+                }
 
-        } else if (role.equals("darkPlayer")) {
-            Player lightPlayer = game.getLightPlayer();
-            Player darkPlayer = game.getDarkPlayer();
+                break;
+            case "darkPlayer":
+                Player lightPlayer = game.getLightPlayer();
+                Player darkPlayer = game.getDarkPlayer();
 
-            try {
-                //Message dark player that light player is connected
-                darkPlayer.getSession().getRemote()
-                        .sendString(gson.toJson(lightPlayer.getJoinMessage()));
-                //Message dark player and light player that dark player is connected.
-                darkPlayer.getSession().getRemote()
-                        .sendString(gson.toJson(darkPlayer.getJoinMessage()));
-                lightPlayer.getSession().getRemote()
-                        .sendString(gson.toJson(darkPlayer.getJoinMessage()));
+                try {
+                    //Message dark player that light player is connected
+                    darkPlayer.getSession().getRemote()
+                            .sendString(gson.toJson(lightPlayer.getJoinMessage()));
+                    //Message dark player and light player that dark player is connected.
+                    darkPlayer.getSession().getRemote()
+                            .sendString(gson.toJson(darkPlayer.getJoinMessage()));
+                    lightPlayer.getSession().getRemote()
+                            .sendString(gson.toJson(darkPlayer.getJoinMessage()));
 
-                //Send start game message to both players, with proper permissions.
-                lightPlayer.getSession().getRemote()
-                        .sendString(gson.toJson(sendStartMsg(game, true, false, false)));
-                darkPlayer.getSession().getRemote()
-                        .sendString(gson.toJson(sendStartMsg(game, false, true, false)));
-            } catch (IOException e) {
-                System.out.println("IO Exception");
-            }
+                    //Send start game message to both players, with proper permissions.
+                    lightPlayer.getSession().getRemote()
+                            .sendString(gson.toJson(sendStartMsg(game, true, false, false)));
+                    darkPlayer.getSession().getRemote()
+                            .sendString(gson.toJson(sendStartMsg(game, false, true, false)));
+                } catch (IOException e) {
+                    System.out.println("IO Exception");
+                }
 
-        } else if (role.equals("spectator")) {
-            game.connectSpectator(player);
+                break;
+            case "spectator":
+                game.connectSpectator(player);
+                break;
         }
     }
 
     /**
      * Send Start Message: Helper function to send a message to start the game.
      * Just send piece locations and current status.
-     * @param game
-     * @param lightPlayer
-     * @param darkPlayer
-     * @param spectator
-     * @return
+     * @param game - current game object context.
+     * @param lightPlayer - boolean as to whether or not this player is lightPlayer
+     * @param darkPlayer - boolean as to whether or not this player is darkPlayer
+     * @param spectator - boolean as to whether or not this player is spectator
+     * @return A StartGame message with the appropriate fields configured.
      */
     private StartGame sendStartMsg(Game game, boolean lightPlayer, boolean darkPlayer,
                                    boolean spectator) {
@@ -171,16 +177,12 @@ public class DispatchAdapter {
                 lightPlayer, darkPlayer, spectator);
     }
 
-
-
-
-
-
     /**
      * Method: Add New Game.
      * Create a new game, and associate it to the directory of all games.
      * Instantiate a player with the username that wanted to great the new game.
-     * @param username
+     * @param username - username for the player that will be added to the new game.
+     * @return - String of the game ID for the new game that was started.
      */
     public String addNewGame(String username) {
         //The gameCounter string will serve as the key for the game in the allGames map.
@@ -202,15 +204,14 @@ public class DispatchAdapter {
      * This method instantiates a player with a given username and joins
      * to a specified game.
      * Will return false if unsuccessful - may be the case that the game was already deleted, etc.
-     * @param username
-     * @param gameID
+     * @param username - username of the new player for joining the game.
+     * @param gameID - String of the game to join.
      * @return - A string indicating the role the user joined as. "null", "darkPlayer", or "spectator"
      */
     public String joinGame(String username, String gameID) {
         //Find the correct game. Exit early if there is no game.
         Game game = null;
         for (Game g: allGames) {
-            String ID = g.getID();
             if (g.getID().equals(gameID)) {
                 //If we have a match, associate the Game reference and exit early.
                 game = g;

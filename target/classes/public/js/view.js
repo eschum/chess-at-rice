@@ -2,11 +2,7 @@
 
 //app to draw polymorphic shapes on canvas
 let app;
-
 let socket;
-
-//Time interval for Updating chess board: 5000ms = 5 seconds.
-let update_interval = 5000;
 
 //Global variables re: chess board size.
 let boardImgFile = "chessboard-600-rice.png";
@@ -371,7 +367,7 @@ function sendMove() {
     if (isSpectator) {
         alert("You Are Just Spectating and Cannot Move");
         return;
-    } 
+    }
 
     if (moveOrigin != null && moveDestination != null) {
         //send the move to the model. A stub for now that just changes the player.

@@ -55,9 +55,7 @@ public class ChessSocketController {
         });
 
         //Respond with all games, so that we can refresh the table.
-        post("/refresh", (request, response) -> {
-            return gson.toJson(dis.getAllGames());
-        });
+        post("/refresh", (request, response) -> gson.toJson(dis.getAllGames()));
     }
 
     /**
