@@ -4,6 +4,10 @@ let lightPlayer;
 let darkPlayer;
 let userID;
 
+//Set the update interval for 5 seconds
+//otherwise the rows will act erratic when clicked.
+let updateInterval = 5000;
+
 
 /**
  * Define action on window loading.
@@ -18,8 +22,10 @@ window.onload = function() {
     $("#btn-join").click(joinGame);
     $("#btn-leave").click(leaveLobby);
 
-    refreshTable();
+    refreshTable(); //initialize the table with current values
 
+    //And then set the table to update every second.
+    setInterval(refreshTable, updateInterval);
 };
 
 /**
@@ -30,26 +36,25 @@ window.addEventListener('load', (event) => {
 });
 
 /**
- * General Event listener - listens for user clicks on the table.
+ * Event Listener for table clicks.
+ * Make it general - jquery document.on(); such that dynamically added
+ * rows can also respond.
  */
-$(document).ready(function() {
-    //Event Listener for table click.
-    $("#gameTable tbody tr").click(function() {
-        let selected = $(this).hasClass("highlight");
-        $("#gameTable tr").removeClass("highlight");
-        selectedGame = null;    //Reset the game selector to have not selected a game.
-        lightPlayer = null;
-        darkPlayer = null;
-        if (!selected) {
-            //Add highlighting
-            $(this).addClass("highlight");
-            //Get the Game ID, playerOne, and playerTwo.
-            //We will use playerOne and playerTwo to determine if the game will allow for spectators.
-            selectedGame = $(this).find(".gameid").text();
-            lightPlayer = $(this).find(".lightplayer").text();
-            darkPlayer = $(this).find(".darkplayer").text();
-        }
-    });
+$(document).on("click", "tr", function(e) {
+    let selected = $(this).hasClass("highlight");
+    $("#gameTable tr").removeClass("highlight");
+    selectedGame = null;    //Reset the game selector to have not selected a game.
+    lightPlayer = null;
+    darkPlayer = null;
+    if (!selected) {
+        //Add highlighting
+        $(this).addClass("highlight");
+        //Get the Game ID, playerOne, and playerTwo.
+        //We will use playerOne and playerTwo to determine if the game will allow for spectators.
+        selectedGame = $(this).find(".gameid").text();
+        lightPlayer = $(this).find(".lightplayer").text();
+        darkPlayer = $(this).find(".darkplayer").text();
+    }
 });
 
 /**
@@ -73,12 +78,30 @@ function newGame() {
 
 function refreshTable() {
     $.post("/refresh", function(data) {
+        //Once we receive a response from the server, clear the table.
+        //TODO - clear the tbody of the gameTable tag.
+
+        $("#gameTable > tbody").html(""); //clear the table if any rows should be present
         //data will be an array of game data - note, it is not an array of Game objects.
         //Loop through each game and add to table
         data.forEach(function(game) {
+            //Add the HTML for the table
+            let darkPlayer = game.darkPlayer === 'NULL' ? "" : game.darkPlayer
+
+            let row = "<tr>"
+                .concat("<td class='gameid'>" + game.gameID + "</td>")
+                .concat("<td class='lightplayer'>" + game.lightPlayer + "</td>")
+                .concat("<td class='darkplayer'>" + darkPlayer + "</td>")
+                .concat("<td class='time'>" + "" + "</td>")
+                .concat("<td class='score'>" + "" + "</td>")
+                .concat("</tr>");
+
+            // table.innerHTML +=
+
+            $('#gameTable').find('tbody').append(row);
+            //TODO - Score and time.
             console.log(game.gameID + ", " + game.lightPlayer + ", " + game.darkPlayer);
         });
-
     }, "json");
 }
 
