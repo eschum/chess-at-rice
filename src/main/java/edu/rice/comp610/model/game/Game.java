@@ -58,24 +58,39 @@ public class Game {
     public void addPlayer(Player p) {
         if (lightPlayer == null) {
             lightPlayer = p;
-            entities.put(p.getSession(), p);
+            //entities.put(p.getSession(), p);
         } else if (darkPlayer == null) {
             darkPlayer = p;
-            entities.put(p.getSession(), p);
+            //entities.put(p.getSession(), p);
         }
     }
 
     /**
+     * Method: Add Entity
+     * Mutator to add the session - player mapping once the session joins as the
+     * appropriate player.
+     * @param p
+     */
+    public void addEntity(Player p) {
+        entities.put(p.getSession(), p);
+    }
+
+    /**
      * Method: Add Spectator
-     * Description: Mutator method to add a spectator.
+     * Description: Mutator method to add a spectator when selected from the lobby.
      * @param = - Player to add to spectator list.
      */
-
     public void addSpectator(Player p) {
         spectators.add(p);
-        entities.put(p.getSession(), p);
+    }
 
-        //Broadcast to all that a spectator has entered.
+    /**
+     * Method: Connect Spectator
+     * Send messages to all entities in the game when the spectator joins.
+     * Send a message to manually update the board of the spectator.
+     * @param p - player that is joining as a spectator.
+     */
+    public void connectSpectator(Player p) {
         broadcastMessage(p.getSpectatorJoin());
 
         //Give the spectator a manual update of the board status.

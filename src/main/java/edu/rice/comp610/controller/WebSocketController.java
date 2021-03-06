@@ -29,6 +29,11 @@ public class WebSocketController {
         allSessions = new HashMap<>();
     }
 
+    /**
+     * On Connect for the Websockets protocol.
+     *
+     * @param userSession
+     */
     @OnWebSocketConnect
     public void onConnect(Session userSession) {
 
@@ -76,19 +81,6 @@ public class WebSocketController {
 //            allSessions.put(player.getSession(), game);
 //            game.addSpectator(player); //Delegate to game class to add the spectator and send the messages.
 //        }
-    }
-
-    /**
-     * Send Start Message: Helper function to send a message to start the game.
-     * Just send piece locations and current status.
-     * @param game
-     * @param lightPlayer
-     * @param darkPlayer
-     * @param spectator
-     * @return
-     */
-    private StartGame sendStartMsg(Game game, boolean lightPlayer, boolean darkPlayer, boolean spectator) {
-        return new StartGame(game.getLightPieces(), game.getDarkPieces(), lightPlayer, darkPlayer, spectator);
     }
 
     @OnWebSocketClose

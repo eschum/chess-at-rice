@@ -76,6 +76,47 @@ function newGame() {
     }, "json");
 }
 
+/**
+ * Function: JOin Game
+ * Join the selected game.
+ * Will join as Dark Player if there is not a dark player currently.
+ * Otherwise, will join as a spectator.
+ */
+function joinGame() {
+    if (selectedGame == null) {
+        alert("No Game Selected. Please Select a Game.");
+        return;
+    } else {
+
+        //Post to the server with our intent to create a new game, and the user name.
+        $.post("/join", { username: userID, gameID: selectedGame }, function(data) {
+            if (data.status === "null") {
+                //If null, we did not join the game successfully.
+                alert("Failed to Join Game. Game may have been terminated");
+                return;
+
+            } else {
+                //If joining was successful, then set the cookies and take appropriate action
+                document.cookie = "username=" + userID;
+                document.cookie = "gameid=" + selectedGame;
+                document.cookie = "role=" + data.status;
+                alert("Joining " + selectedGame + " as " + data.status);
+                window.location.replace("/match.html");  //use replace method so that browsing history is not appended
+            }
+            //To save from infinite "back" loop
+        }, "json");
+    }
+
+    console.log("JOIN GAME");
+    console.log("User ID: " + userID);
+    console.log("Selected Game: " + selectedGame);
+    console.log("Light Player: " + lightPlayer);
+    console.log("Dark Player: " + darkPlayer);
+}
+
+
+
+
 function refreshTable() {
     $.post("/refresh", function(data) {
         //Once we receive a response from the server, clear the table.
@@ -99,29 +140,17 @@ function refreshTable() {
             // table.innerHTML +=
 
             $('#gameTable').find('tbody').append(row);
-            //TODO - Score and time.
-            console.log(game.gameID + ", " + game.lightPlayer + ", " + game.darkPlayer);
         });
     }, "json");
+
+    //Reset the view "cursor", such that no game is selected. Otherwise the user won't know
+    //What they are clicking on.
+    selectedGame = null;
+    lightPlayer = null;
+    darkPlayer = null;
 }
 
-/**
- * Function: JOin Game
- * Join the selected game.
- * Will join as Dark Player if there is not a dark player currently.
- * Otherwise, will join as a spectator.
- */
-function joinGame() {
-    if (selectedGame == null) {
-        alert("No Game Selected. Please Select a Game.");
-        return;
-    }
-    console.log("JOIN GAME");
-    console.log("User ID: " + userID);
-    console.log("Selected Game: " + selectedGame);
-    console.log("Light Player: " + lightPlayer);
-    console.log("Dark Player: " + darkPlayer);
-}
+
 
 /**
  * Function: Leave Lobby

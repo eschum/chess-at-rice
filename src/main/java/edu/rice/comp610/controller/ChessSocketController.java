@@ -3,7 +3,6 @@ package edu.rice.comp610.controller;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import edu.rice.comp610.model.DispatchAdapter;
-import java.awt.*;
 import static spark.Spark.*;
 
 
@@ -40,14 +39,25 @@ public class ChessSocketController {
             return obj;
         });
 
+        //Join a game if the game is available to join.
+        post("/join", (request, response) -> {
+            String username = request.queryParams("username");
+            String gameID = request.queryParams("gameID");
+            System.out.print("User " + username + " requested a join\n");
+
+            //Join Game
+            String status = dis.joinGame(username, gameID);
+
+            //Report to user as to how (if) they joined
+            JsonObject obj = new JsonObject();
+            obj.addProperty("status", status);
+            return obj;
+        });
+
         //Respond with all games, so that we can refresh the table.
         post("/refresh", (request, response) -> {
             return gson.toJson(dis.getAllGames());
         });
-
-
-
-
     }
 
     /**

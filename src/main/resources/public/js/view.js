@@ -2,11 +2,7 @@
 
 //app to draw polymorphic shapes on canvas
 let app;
-
 let socket;
-
-//Time interval for Updating chess board: 5000ms = 5 seconds.
-let update_interval = 5000;
 
 //Global variables re: chess board size.
 let boardImgFile = "chessboard-600-rice.png";
@@ -21,6 +17,7 @@ let isLightPlayer = false;
 let isDarkPlayer = false;
 let moveOrigin = null;
 let moveDestination = null;
+let gameID;
 
 //Player Data
 let username;
@@ -172,7 +169,7 @@ function onMessage(msg) {
         case "spectator_join":
             if (!isLightPlayer && !isDarkPlayer) isSpectator = true;
             gameStarted = true;
-            log.innerHTML += "<p class='log'>" + obj.name + " Connected<\p>";
+            log.innerHTML += "<p class='log'>" + obj.name + " Connected as Spectator<\p>";
             blank_log = document.querySelector(".scrollBox p:nth-last-child(1)");
             blank_log.remove();
             log.scrollTop = log.scrollHeight;
@@ -226,10 +223,16 @@ function onConnect(event) {
         .find(row => row.startsWith('role='))
         .split('=')[1];
 
+    gameID = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('gameid='))
+        .split('=')[1];
+
     //log the username in the console for debugging purposes.
-    console.log("Username: " + username + "; role: " + role);
+    console.log("Username: " + username + "; role: " + role + "; gameID: " + gameID);
 
     //Send the connection message to the server.
+    //We don't need the game ID because the user will have already been associated with the correct game.
     let msgJSON = {type: "join", username: username, role: role };
     let msg = JSON.stringify(msgJSON);
     socket.send(msg);
@@ -365,6 +368,7 @@ function sendMove() {
         alert("You Are Just Spectating and Cannot Move");
         return;
     }
+
     if (moveOrigin != null && moveDestination != null) {
         //send the move to the model. A stub for now that just changes the player.
         let log = document.querySelector(".scrollBox p:nth-last-child(1)");

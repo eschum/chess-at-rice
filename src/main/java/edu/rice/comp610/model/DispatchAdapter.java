@@ -4,9 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import edu.rice.comp610.model.game.Game;
 import edu.rice.comp610.model.game.Player;
+import edu.rice.comp610.model.message.StartGame;
 import org.eclipse.jetty.websocket.api.Session;
 
-import java.awt.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
@@ -88,8 +88,6 @@ public class DispatchAdapter {
             username = username.substring(1, username.length() - 1);
             String role = parsedMsg.get("role").toString();
             role = role.substring(1, role.length() - 1);
-            System.out.print(username);
-            System.out.print(role);
             connectUser(userSession, username, role);
 
         } else if (type.equals("move")) {
@@ -113,19 +111,70 @@ public class DispatchAdapter {
 
     private void connectUser(Session userSession, String username, String role) {
         Player player = allPlayers.get(username);
+        Game game = allPlayersToGames.get(username);
+
+        //Invariant code - do it no matter what the role of the player.
+        player.setSession(userSession);
+        allSessions.put(userSession, game);
+
+        game.addEntity(player);
 
         if (role.equals("lightPlayer")) {
-            //Set the Session of the player.
-            player.setSession(userSession);
-            allSessions.put(userSession, allPlayersToGames.get(username));
+
             //Message player 1.
             try {
                 player.getSession().getRemote().sendString(gson.toJson(player.getJoinMessage()));
             } catch (IOException e) {
                 System.out.println("IO Exception");
             }
+
+        } else if (role.equals("darkPlayer")) {
+            Player lightPlayer = game.getLightPlayer();
+            Player darkPlayer = game.getDarkPlayer();
+
+            try {
+                //Message dark player that light player is connected
+                darkPlayer.getSession().getRemote()
+                        .sendString(gson.toJson(lightPlayer.getJoinMessage()));
+                //Message dark player and light player that dark player is connected.
+                darkPlayer.getSession().getRemote()
+                        .sendString(gson.toJson(darkPlayer.getJoinMessage()));
+                lightPlayer.getSession().getRemote()
+                        .sendString(gson.toJson(darkPlayer.getJoinMessage()));
+
+                //Send start game message to both players, with proper permissions.
+                lightPlayer.getSession().getRemote()
+                        .sendString(gson.toJson(sendStartMsg(game, true, false, false)));
+                darkPlayer.getSession().getRemote()
+                        .sendString(gson.toJson(sendStartMsg(game, false, true, false)));
+            } catch (IOException e) {
+                System.out.println("IO Exception");
+            }
+
+        } else if (role.equals("spectator")) {
+            game.connectSpectator(player);
         }
     }
+
+    /**
+     * Send Start Message: Helper function to send a message to start the game.
+     * Just send piece locations and current status.
+     * @param game
+     * @param lightPlayer
+     * @param darkPlayer
+     * @param spectator
+     * @return
+     */
+    private StartGame sendStartMsg(Game game, boolean lightPlayer, boolean darkPlayer,
+                                   boolean spectator) {
+        return new StartGame(game.getLightPieces(), game.getDarkPieces(),
+                lightPlayer, darkPlayer, spectator);
+    }
+
+
+
+
+
 
     /**
      * Method: Add New Game.
@@ -137,7 +186,7 @@ public class DispatchAdapter {
         //The gameCounter string will serve as the key for the game in the allGames map.
         String gameID = "Game" + gameCounter++;
         Game game = new Game(gameID);
-        //allGames.put(gameID, game);
+
         Player p1 = new Player(username);
         game.addPlayer(p1);
         allPlayers.put(username, p1);
@@ -148,62 +197,49 @@ public class DispatchAdapter {
         return gameID;
     }
 
-
-
     /**
-     * Connect Players: Method to associate our connection
-     * @return
+     * Method: Join Game.
+     * This method instantiates a player with a given username and joins
+     * to a specified game.
+     * Will return false if unsuccessful - may be the case that the game was already deleted, etc.
+     * @param username
+     * @param gameID
+     * @return - A string indicating the role the user joined as. "null", "darkPlayer", or "spectator"
      */
-    public static int connectPlayer(Player player, Game game) {
-        if (game.getLightPlayer() == null) {
-            game.addPlayer(player);
-            return 1;
-        } else if (game.getDarkPlayer() == null) {
-            game.addPlayer(player);
-            return 2;
-        } else {
-            //return 0 if spectator.
-
-            //Add here to add the spectator
-            return 0;
+    public String joinGame(String username, String gameID) {
+        //Find the correct game. Exit early if there is no game.
+        Game game = null;
+        for (Game g: allGames) {
+            String ID = g.getID();
+            if (g.getID().equals(gameID)) {
+                //If we have a match, associate the Game reference and exit early.
+                game = g;
+                break;
+            }
         }
-    }
+        //Exit with false result if the game no longer exists.
+        if (game == null) return "null";
 
-    /**
-     * Accessor method to return the static pcs - so objects can call the collision changes themselves.
-     * @return the PropertyChangeSupport object.
-     */
-    public static PropertyChangeSupport getPCS() {
-        return pcs;
-    }
+        //Game exists - instantiate the player.
+        Player p2 = new Player(username);
+        allPlayers.put(username, p2);
+        allPlayersToGames.put(username, game);
+        String status;
 
+        //Join as dark player by default.
+        if (game.getDarkPlayer() == null) {
+            game.addPlayer(p2);  //session will be blank until the player "dials in" and sends the
+            //connection message.
+            System.out.print(p2.getName() + " joined as dark player\n");
+            status = "darkPlayer";
 
-    /**
-     * Call the update method on all the ball observers to update their position in the ball world.
-     */
-    public PropertyChangeListener[] updateBallWorld() {
-        pcs.firePropertyChange("theClock", false, true);
-        return pcs.getPropertyChangeListeners("theClock");
-    }
+        } else {
+            //Otherwise, join as spectator.
+            game.addSpectator(p2);
+            System.out.print(p2.getName() + " joined as a spectator\n");
+            status = "spectator";
+        }
 
-    /**
-     * Generate a random number.
-     * Made public for easy access from Strategy classes.
-     * @param base  The minimum value
-     * @param limit The maximum number from the base
-     * @return A randomly generated number
-     */
-    public static int getRnd(int base, int limit) {
-        return (int)Math.floor(Math.random() * limit + base);
-    }
-
-    /**
-     * Remove Single Listener
-     * Remove a single listener from all the event listener registries, and from the collision
-     * @param pcl - PropertyChangeListener
-     */
-    public void removeSingleListener(PropertyChangeListener pcl) {
-        pcs.removePropertyChangeListener("theClock", pcl);
-        pcs.removePropertyChangeListener("collision-detect", pcl);
+        return status;
     }
 }
