@@ -8,14 +8,15 @@ let userID;
 //otherwise the rows will act erratic when clicked.
 let updateInterval = 5000;
 
-
 /**
  * Define action on window loading.
  */
 window.onload = function() {
-
-    //For now, generate a random string for user ID.
-    userID = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);
+    //The userID will come from the cookie that we saved during authentication, so just read it.
+    userID = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('username='))
+        .split('=')[1];
 
     //Buttons for interacting with the lobby menu
     $("#btn-new").click(newGame);
@@ -114,14 +115,14 @@ function joinGame() {
     console.log("Dark Player: " + darkPlayer);
 }
 
-
-
-
+/**
+ * Function: Refresh Table
+ * Send a POST request to obtain all the current table data of games available.
+ * Clear the tbody and display all current lines.
+ */
 function refreshTable() {
     $.post("/refresh", function(data) {
         //Once we receive a response from the server, clear the table.
-        //TODO - clear the tbody of the gameTable tag.
-
         $("#gameTable > tbody").html(""); //clear the table if any rows should be present
         //data will be an array of game data - note, it is not an array of Game objects.
         //Loop through each game and add to table
@@ -149,8 +150,6 @@ function refreshTable() {
     lightPlayer = null;
     darkPlayer = null;
 }
-
-
 
 /**
  * Function: Leave Lobby
