@@ -27,6 +27,13 @@ public class ChessSocketController {
 
         webSocket("/chess", wsc);
 
+        post("/auth", (request, response) -> {
+            String username = request.queryParams("username");
+            String password = request.queryParams("password");
+            return dis.validateCredentials(username, password);
+        });
+
+
         //Start a new game, instantiating the game / player.
         post("/new", (request, response) -> {
             String username = request.queryParams("username");

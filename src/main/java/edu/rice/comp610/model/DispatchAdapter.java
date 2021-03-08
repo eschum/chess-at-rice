@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.jar.JarEntry;
 
 
 /**
@@ -23,6 +24,7 @@ public class DispatchAdapter {
     private final Map<Session, Game> allSessions;
     private final Map<String, Player> allPlayers;  //Need to have a hashmap to quickly set the session of each player
     public static Gson gson;
+    private HashMap<String, String> credentials;
 
     /**
      * Constructor call.
@@ -33,7 +35,39 @@ public class DispatchAdapter {
         allSessions = new HashMap<>();
         allPlayers = new HashMap<>();
         allGames = new ArrayList<>();
+        credentials = new HashMap<>();
+        initCredentials();
     }
+
+    public JsonObject validateCredentials(String username, String password) {
+        JsonObject response = new JsonObject();
+
+        //Return response based on whether or not the ID / password is correct
+        if (credentials.containsKey(username) &&
+                credentials.get(username).equals(password)) {
+            response.addProperty("auth", "true");
+
+        } else {
+            response.addProperty("auth", "false");
+        }
+        System.out.print(true);
+
+
+        return response;
+    }
+
+    /**
+     * Function: Init Credentials
+     * Hard-code a set number of access credentials to test
+     * authentication. In the future, could be expanded to a database.
+     */
+    private void initCredentials() {
+        credentials.put("eric", "ricestudent");
+        credentials.put("zoran", "ricefaculty");
+        credentials.put("testaccount", "test-account-pw");
+    }
+
+
 
     /**
      * Method: Get All Games

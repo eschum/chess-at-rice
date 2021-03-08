@@ -18,6 +18,8 @@ window.onload = function() {
         .find(row => row.startsWith('username='))
         .split('=')[1];
 
+    console.log("Entering Lobby as userID: " + userID);
+
     //Buttons for interacting with the lobby menu
     $("#btn-new").click(newGame);
     $("#btn-join").click(joinGame);
