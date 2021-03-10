@@ -4,7 +4,7 @@ import edu.rice.comp610.model.DispatchAdapter;
 
 import java.awt.*;
 
-public class Piece {
+public class Piece implements IPiece{
     private Point loc;
     private String boardLoc;
     private String image;

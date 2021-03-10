@@ -58,7 +58,6 @@ function authUser() {
                 } else {
                     //Invalid. Alert user.
                     document.getElementById("password-input").classList.add("is-invalid");
-                    document.getElementById("username-input").value = "";
                     document.getElementById("password-input").value = "";
                 }
             }});
