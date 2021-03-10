@@ -1,7 +1,7 @@
 package edu.rice.comp610.model.piece;
 
 /**
- * IPiece interface defines what state and behavior the Chess Piece
+ * IPiece interface defines what behavior the Chess Piece
  * classes must have to interact with the Chess game.
  */
 public interface IPiece {

@@ -9,8 +9,6 @@ public interface IMessage {
     /*
     There should be a String "type" that defines the type of the message
      */
-    String type = null;
-
 
     /**
      * Method: Set Type
