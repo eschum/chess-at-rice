@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.jar.JarEntry;
 
 
 /**
@@ -66,8 +65,6 @@ public class DispatchAdapter {
         credentials.put("zoran", "ricefaculty");
         credentials.put("testaccount", "test-account-pw");
     }
-
-
 
     /**
      * Method: Get All Games

@@ -2,11 +2,10 @@ package edu.rice.comp610.model.game;
 
 import com.google.gson.Gson;
 import edu.rice.comp610.model.DispatchAdapter;
-import edu.rice.comp610.model.message.ChatMessage;
-import edu.rice.comp610.model.message.ErrorMessage;
-import edu.rice.comp610.model.message.Message;
-import edu.rice.comp610.model.message.UpdateGame;
+import edu.rice.comp610.model.message.*;
 import edu.rice.comp610.model.piece.*;
+import edu.rice.comp610.model.validation.ValidateMove;
+import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jetty.websocket.api.Session;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -135,44 +134,39 @@ public class Game {
         return darkPlayer;
     }
 
+
+    /**
+     * Method: Get Piece From Positions
+     * Returns the piece that is at a selected location
+     * @param fromLoc String (chess notation) of a desired location
+     * @return The piece at the location (or null)
+     */
+    public Piece getPieceFromPositions(String fromLoc) {
+        return positions.get(fromLoc);
+    }
+
+
     /**
      * Method: Process Move
      * Process a move that is received from a session.
-     * Need to make sure that the from location is a piece, and it is a player's own piece.
-     * Check to make sure that the player matches the type of piece that is attempted to be moved.
-     * Then, process the validity of the move itself (can insert more advanced Chess logic in future)
-     * Finally, respond with an update to the board, or an error message. To both players and all spectators.
+     * Call the validator class to check the validity of the move.
+     * Respond with an update to the board, or an error message. To both players and all spectators.
      * @param userSession - current session the "move" message is coming from.
      * @param fromLoc - the from location (a String).
      * @param toLoc - the to location (a String).
      */
     public void processMove(Session userSession, String fromLoc, String toLoc) {
-        Piece selectedPiece = positions.get(fromLoc);
-
-        if (selectedPiece == null) {
-            //send error message - a piece wasn't selected
-            sendErrorMessage(userSession, "A piece was not selected");
-
+        //Validate the move. Send error message and return if the move is not valid.
+        Pair<Integer, String> validStatus = ValidateMove.getInstance().checkIfLegal(fromLoc, toLoc,
+                entities.get(userSession), this);
+        if (validStatus != null && validStatus.getKey() != 0) {
+            //A piece wasn't selected.
+            sendErrorMessage(userSession, validStatus.getValue());
             return;
-
-        } else if ((userSession == lightPlayer.getSession() && selectedPiece.getTeam() != 0) ||
-                (userSession == darkPlayer.getSession() && selectedPiece.getTeam() != 1)) {
-            //send error message - piece selected is of the wrong team
-            sendErrorMessage(userSession, "Selecting piece of opposite team is not allowed");
-
-
-            return;
-        }
-
-        //If we made it out, process the move of a valid piece selection.
-        if (!validateMove(selectedPiece, toLoc)) {
-            //TODO send error message - invalid move requested - moving onto square with own piece.
-            sendErrorMessage(userSession, "Cannot move onto square already occupied by own piece");
-            return;
-
         }
 
         //If passes the validation, then make the move. Update positions. Remove captured piece. Send update.
+        Piece selectedPiece = positions.get(fromLoc);
         Piece targetPiece = positions.get(toLoc);
 
         if (targetPiece == null) {
@@ -245,23 +239,6 @@ public class Game {
         } catch (IOException e) {
             System.out.println("IO Exception");
         }
-    }
-
-    /**
-     * Method: Validate Move
-     * Check if this is a valid move (or if we are moving onto a piece from our own team).
-     *
-     * This assumes that processMove has already checked that the piece selected is of the correct team.
-     * Do it this way so we don't pass userSession info to the validateMove method.
-     * @param selectedPiece - the Piece that is going to move.
-     * @param toLoc - the destination location for the piece.
-     * @return - false if the move is invalid. True if the move is valid.
-     */
-    private boolean validateMove(Piece selectedPiece, String toLoc) {
-        //Boolean zen - yeah!
-        //Can extend to add specific error checking based on piece type.
-        System.out.print("Contains key? : " + positions.containsKey(toLoc));
-        return (!positions.containsKey(toLoc) || positions.get(toLoc).getTeam() != selectedPiece.getTeam());
     }
 
     /**

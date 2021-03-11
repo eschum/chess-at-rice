@@ -1,6 +1,9 @@
 package edu.rice.comp610.model.validation;
 
 import edu.rice.comp610.model.game.Game;
+import edu.rice.comp610.model.game.Player;
+import org.apache.commons.lang3.tuple.Pair;
+import org.eclipse.jetty.websocket.api.Session;
 import java.util.ArrayList;
 
 /**
@@ -24,7 +27,7 @@ public interface IValidateMove {
      * @return 0 if true, 1 if no piece selected, 2 if piece of opposite team selected,
      * 3 if moving onto square of own piece, 4 if chess logic error.
      */
-    int checkIfLegal(String fromLoc, String toLoc, Game game);
+    Pair<Integer, String> checkIfLegal(String fromLoc, String toLoc, Player player, Game game);
 
     /**
      * Method: List of Legal Moves.
