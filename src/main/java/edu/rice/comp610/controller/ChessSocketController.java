@@ -3,6 +3,8 @@ package edu.rice.comp610.controller;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import edu.rice.comp610.model.DispatchAdapter;
+import edu.rice.comp610.model.validation.Authenticator;
+
 import static spark.Spark.*;
 
 
@@ -21,6 +23,7 @@ public class ChessSocketController {
         staticFiles.location("/public");
 
         DispatchAdapter dis = new DispatchAdapter();
+        Authenticator auth = Authenticator.getInstance();
         Gson gson = DispatchAdapter.gson;
 
         WebSocketController wsc = new WebSocketController(dis);
@@ -30,7 +33,7 @@ public class ChessSocketController {
         post("/auth", (request, response) -> {
             String username = request.queryParams("username");
             String password = request.queryParams("password");
-            return dis.validateCredentials(username, password);
+            return auth.validateCredentials(username, password);
         });
 
 
