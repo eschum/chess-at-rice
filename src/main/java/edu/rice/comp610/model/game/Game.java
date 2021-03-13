@@ -53,6 +53,63 @@ public class Game {
     }
 
     /**
+     * Method: Get All Players
+     * Accessor method that returns an ArrayList of all players
+     * mapped to this game.
+     * @return
+     */
+    public ArrayList<Player> getAllPlayers() {
+        return new ArrayList<>(entities.values());
+    }
+
+    /**
+     * Method: Get Player From Session
+     * Return the player that was connected to the Session.
+     * @param userSession
+     * @return
+     */
+    public Player getPlayerFromSession(Session userSession) {
+        return entities.get(userSession);
+    }
+
+    /**
+     * Method: Handle Leave
+     * Determine whether the session leaving is a spepctator or a player.
+     * Return whether or not it is a player; so the DA can remove the rest of the
+     * connections.
+     * @param userSession
+     * @return
+     */
+    public boolean handleLeave(Session userSession) {
+        //Determine which player is leaving.
+        Player leaver = entities.get(userSession);
+
+        //Remove the player from the entity set.
+        entities.remove(userSession);
+
+        if (leaver == lightPlayer || leaver == darkPlayer) {
+            /*
+            If a key player leaves, then send a message to everyone that the game is over.
+            Also, need to remove the game from the list in the DA.
+             */
+            System.out.print("Player " + leaver.getName() + " has left\n");
+            broadcastMessage(new PlayerLeave(leaver));
+            return true;
+
+        } else {
+            /*
+            If a spectator leaves, remove them from the spectator list.
+            Send a spectator_leave message to let others know the spectator has left.
+            Gameplay can continue.
+             */
+            System.out.print("Spectator " + leaver.getName() + " left\n");
+            spectators.remove(leaver);
+            broadcastMessage(new SpectatorLeave(leaver));
+            return false;
+        }
+    }
+
+    /**
      * Method: Get ID
      * Accessor method to return the String
      * @return String of game ID.
@@ -61,14 +118,17 @@ public class Game {
         return this.gameID;
     }
 
-    //public void addPlayer
+    /**
+     * Method: Add Player
+     * Associate proper player (lightplayer / darkplayer) with
+     * the provided instance of Player.
+     * @param p The Player object
+     */
     public void addPlayer(Player p) {
         if (lightPlayer == null) {
             lightPlayer = p;
-            //entities.put(p.getSession(), p);
         } else if (darkPlayer == null) {
             darkPlayer = p;
-            //entities.put(p.getSession(), p);
         }
     }
 
@@ -133,7 +193,6 @@ public class Game {
     public Player getDarkPlayer() {
         return darkPlayer;
     }
-
 
     /**
      * Method: Get Piece From Positions

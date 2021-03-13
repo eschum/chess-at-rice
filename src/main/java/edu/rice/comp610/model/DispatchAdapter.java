@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-
 /**
  * This adapter interfaces with the view (paint objects) and the controller.
  */
@@ -38,6 +37,59 @@ public class DispatchAdapter {
         initCredentials();
     }
 
+    /**
+     * Method: Handle Close
+     * Garbage Collection for the exiting session / user.
+     * Look up which game the leaving session is from.
+     * Forward the session close to that game.
+     *
+     * Once back, need to remove that player from all affiliated maps.
+     *
+     * When handleClose execution completes, the last reference to the Game
+     * should be removed.
+     * @param userSession The session that is leaving.
+     */
+    public void handleClose(Session userSession) {
+        Game game = allSessions.get(userSession);
+        ArrayList<Player> playersToRemove = game.getAllPlayers();
+        Player leaver = game.getPlayerFromSession(userSession);
+
+        boolean killGame = game.handleLeave(userSession);
+
+        if (killGame) {
+            //Delete all references to the Game.
+            allGames.remove(game);
+
+            //Delete all maps to the players / sessions associated with the game
+            for (Player p : playersToRemove) {
+                String name = p.getName();
+                Session sess = p.getSession();
+                allPlayersToGames.remove(name);
+                allSessions.remove(sess);
+                allPlayers.remove(name);
+            }
+
+        } else {
+            /*
+            If it is only a spectator leaving, then just remove their references.
+             */
+            String name = leaver.getName();
+            Session sess = leaver.getSession();
+            allPlayersToGames.remove(name);
+            allSessions.remove(sess);
+            allPlayers.remove(name);
+        }
+    }
+
+    /**
+     * Method: Validate Credentials
+     * Check if the username and password are within the credential database
+     * @param username User's username string.
+     * @param password User's password string.
+     * @return A JSONObject that contains whether validation was correct or not.
+     * (property "auth" will be set to "true" or "false"). The view will
+     * proceed accordingly.
+     */
     public JsonObject validateCredentials(String username, String password) {
         JsonObject response = new JsonObject();
 
@@ -50,7 +102,6 @@ public class DispatchAdapter {
             response.addProperty("auth", "false");
         }
         System.out.print(true);
-
 
         return response;
     }
@@ -104,7 +155,6 @@ public class DispatchAdapter {
         String type = parsedMsg.get("type").toString();
         type = type.substring(1, type.length() - 1);
 
-        System.out.print(type);
         //Take action based on message type.
         //Get the username and role fields.
         //Get the to and from fields.

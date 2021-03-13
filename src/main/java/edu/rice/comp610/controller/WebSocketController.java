@@ -41,7 +41,11 @@ public class WebSocketController {
      * @param reason - String reason from the websocket protocol
      */
     @OnWebSocketClose
-    public void onClose(Session userSession, int statusCode, String reason) {}
+    public void onClose(Session userSession, int statusCode, String reason) {
+        //We are not concerned about the reason, but only that a user has left.
+        //Delegate to the Dispatch Adapter
+        da.handleClose(userSession);
+    }
 
     /**
      * On Message - For the Websocket protocol.

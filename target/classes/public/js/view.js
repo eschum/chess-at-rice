@@ -157,22 +157,27 @@ function onMessage(msg) {
     let obj = JSON.parse(msg.data);
     let log = document.getElementById('scrollBox');
     let blank_log;
+    let connectString
 
     switch(obj.type) {
         case "player_join":
             initialDrawBoard();
-            log.innerHTML += "<p class='log'>" + obj.name + " Connected<\p>";
-            blank_log = document.querySelector(".scrollBox p:nth-last-child(1)");
-            blank_log.remove();
-            log.scrollTop = log.scrollHeight;
+            connectString = obj.name + " Connected";
+            insertConnectionMessage(connectString);
+            //log.innerHTML += "<p class='log'>" + obj.name + " Connected<\p>";
+            //blank_log = document.querySelector(".scrollBox p:nth-last-child(1)");
+            //blank_log.remove();
+            //log.scrollTop = log.scrollHeight;
             break;
         case "spectator_join":
             if (!isLightPlayer && !isDarkPlayer) isSpectator = true;
             gameStarted = true;
-            log.innerHTML += "<p class='log'>" + obj.name + " Connected as Spectator<\p>";
-            blank_log = document.querySelector(".scrollBox p:nth-last-child(1)");
-            blank_log.remove();
-            log.scrollTop = log.scrollHeight;
+            connectString = obj.name + " Connected as Spectator";
+            insertConnectionMessage(connectString);
+            //log.innerHTML += "<p class='log'>" + obj.name + " Connected as Spectator<\p>";
+            //blank_log = document.querySelector(".scrollBox p:nth-last-child(1)");
+            //blank_log.remove();
+            //log.scrollTop = log.scrollHeight;
             break;
         case "start_game":
             gameStarted = true; //set the game status to start playing.
@@ -196,10 +201,39 @@ function onMessage(msg) {
             let logLast = document.querySelector(".scrollBox p:nth-last-child(1)");
             logLast.remove();
             break;
+        case "spectator_leave":
+            //Write the message that the spectator has left. Allow gameplay to continue.
+            insertConnectionMessage(obj.content);
+            break;
+        case "player_leave":
+            //Write the message that the player has left. Gameplay will not be able to continue.
+            insertConnectionMessage(obj.content);
+            alert(obj.content);
+            //Take action to close or redirect the browser.
+            window.location.replace("/index.html");
             default:
             break;
     }
 }
+
+/**
+ * Helper function to insert a chat string into the log box for everyone, player and spectator.
+ * @param str
+ */
+function insertChat(str) {
+    let log = document.getElementById('scrollBox');
+    log.innerHTML += "<p class='log' style='text-align: left'>" + str + "<\p>";
+    log.scrollTop = log.scrollHeight;
+}
+
+function insertConnectionMessage(str) {
+    let log = document.getElementById('scrollBox');
+    log.innerHTML += "<p class='log'>" + str + "<\p>";
+    let blank_log = document.querySelector(".scrollBox p:nth-last-child(1)");
+    blank_log.remove();
+    log.scrollTop = log.scrollHeight;
+}
+
 
 /**
  * Helper method to respond when a connection is opened.
@@ -329,16 +363,6 @@ function reportClick(e) {
     } else {
         //Do nothing - wait for Clear move
     }
-}
-
-/**
- * Helper function to insert a chat string into the log box for everyone, player and spectator.
- * @param str
- */
-function insertChat(str) {
-    let log = document.getElementById('scrollBox');
-    log.innerHTML += "<p class='log' style='text-align: left'>" + str + "<\p>";
-    log.scrollTop = log.scrollHeight;
 }
 
 /**

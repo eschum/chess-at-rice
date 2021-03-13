@@ -159,7 +159,8 @@ function refreshTable() {
  * Could add more advanced signout, cookie clearing, etc.
  */
 function leaveLobby() {
-    window.close();
+    console.log("Leave");
+    window.location.replace("/index.html");
 }
 
 
