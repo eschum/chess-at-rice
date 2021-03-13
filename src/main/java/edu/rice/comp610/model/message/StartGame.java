@@ -1,18 +1,28 @@
 package edu.rice.comp610.model.message;
 
-import edu.rice.comp610.model.game.Game;
 import edu.rice.comp610.model.piece.Piece;
-
 import java.util.ArrayList;
 
+/**
+ * Class: Start Game
+ * Message with all the contents to initialize the game in the View of each player.
+ */
 public class StartGame extends Message {
-    private ArrayList<Piece> lightPieces;
-    private ArrayList<Piece> darkPieces;
-    private boolean lightPlayer;
-    private boolean darkPlayer;
-    private boolean spectator;
-    private boolean lightPlayerTurn;
+    private final ArrayList<Piece> lightPieces;
+    private final ArrayList<Piece> darkPieces;
+    private final boolean lightPlayer;
+    private final boolean darkPlayer;
+    private final boolean spectator;
+    private final boolean lightPlayerTurn;
 
+    /**
+     * Public Constructor. Initialize all state to be sent to the view.
+     * @param light ArrayList of light player pieces.
+     * @param dark ArrayList of dark player pieces.
+     * @param p1 boolean whether this player is lightPlayer.
+     * @param p2 boolean whether this player is darkPlayer.
+     * @param spectator boolean whether or not this player is a spectator.
+     */
     public StartGame(ArrayList<Piece> light, ArrayList<Piece> dark, boolean p1, boolean p2, boolean spectator) {
         type = "start_game";
         lightPlayer = p1;

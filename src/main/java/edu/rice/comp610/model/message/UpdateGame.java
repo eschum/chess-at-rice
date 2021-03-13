@@ -1,9 +1,12 @@
 package edu.rice.comp610.model.message;
 
 import edu.rice.comp610.model.piece.Piece;
-
 import java.util.ArrayList;
 
+/**
+ * Class: Update Game
+ * Encode all state to update the game state in the view.
+ */
 public class UpdateGame extends Message {
     private final ArrayList<Piece> lightPieces;
     private final ArrayList<Piece> darkPieces;

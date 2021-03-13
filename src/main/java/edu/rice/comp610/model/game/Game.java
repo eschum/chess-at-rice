@@ -12,6 +12,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Class Game
+ * Store and manage the players and spectators of this game.
+ * Store all piece positions
+ * Handle move requests and status changes.
+ */
 public class Game {
     private ArrayList<Piece> lightPieces;
     private ArrayList<Piece> darkPieces;
@@ -56,7 +62,7 @@ public class Game {
      * Method: Get All Players
      * Accessor method that returns an ArrayList of all players
      * mapped to this game.
-     * @return
+     * @return ArrayList of all the players (players and spectators) involved with this game.
      */
     public ArrayList<Player> getAllPlayers() {
         return new ArrayList<>(entities.values());
@@ -65,8 +71,8 @@ public class Game {
     /**
      * Method: Get Player From Session
      * Return the player that was connected to the Session.
-     * @param userSession
-     * @return
+     * @param userSession The session that is desired to match with the respective Player object.
+     * @return Return the Player object associated with userSession.
      */
     public Player getPlayerFromSession(Session userSession) {
         return entities.get(userSession);
@@ -89,7 +95,7 @@ public class Game {
         Player leaver = entities.get(userSession);
 
         //Remove the player from the entity set.
-        //entities.remove(userSession);
+        entities.remove(userSession);
 
         if (exitMessage == null) {
             if (leaver == lightPlayer || leaver == darkPlayer) {
@@ -120,6 +126,13 @@ public class Game {
              */
             System.out.print("A Game has ended due to a King being taken.\n");
             broadcastMessage(exitMessage);
+            //Need to send the message specifically to userSession as they were already removed from the entity list.
+            try {
+                userSession.getRemote().sendString(gson.toJson(exitMessage));
+            } catch (IOException e) {
+                System.out.println("IO Exception");
+            }
+
             return true;
         }
 
@@ -168,14 +181,6 @@ public class Game {
         spectators.add(p);
     }
 
-    /**
-     * Method: Get Spectators
-     * Accessor method to return list of spectators.
-     * @return An ArrayList of the spectators of this game.
-     */
-    public ArrayList<Player> getSpectators() {
-        return spectators;
-    }
 
     /**
      * Method: Connect Spectator

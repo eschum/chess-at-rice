@@ -12,6 +12,11 @@ import edu.rice.comp610.model.game.Player;
 public class PlayerLeave extends Message {
     private String name;
     private String content;
+
+    /**
+     * Public Constructor
+     * @param p The Player that has left.
+     */
     public PlayerLeave(Player p) {
         type = "player_leave";
         this.name = p.getName();
