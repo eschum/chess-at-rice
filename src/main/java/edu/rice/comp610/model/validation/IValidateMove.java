@@ -3,7 +3,6 @@ package edu.rice.comp610.model.validation;
 import edu.rice.comp610.model.game.Game;
 import edu.rice.comp610.model.game.Player;
 import org.apache.commons.lang3.tuple.Pair;
-import org.eclipse.jetty.websocket.api.Session;
 import java.util.ArrayList;
 
 /**

@@ -4,12 +4,22 @@ import edu.rice.comp610.model.DispatchAdapter;
 import edu.rice.comp610.model.game.Player;
 import java.awt.*;
 
+/**
+ * Class: Piece
+ * Superclass for all chess piece objects.
+ * Implements the IPiece interface
+ */
 public class Piece implements IPiece{
     private Point loc;
     private String boardLoc;
     private String image;
-    private int team;  //0 for light, 1 for dark.
+    private final int team;  //0 for light, 1 for dark.
 
+    /**
+     * Public constructor
+     * @param location The location of the piece in chess notation
+     * @param team Integer of the team, 0 for light, 1 for dark
+     */
     public Piece(String location, int team) {
         this.loc = new Point(0, 0);
         updateLoc(location);
@@ -27,7 +37,7 @@ public class Piece implements IPiece{
     /**
      * Populate the X and Y canvas coordinates for the piece.
      * 0-indexed, starting from upper left.
-     * @param boardLocation
+     * @param boardLocation The new location of the piece, in chess notation.
      */
     public void updateLoc(String boardLocation) {
         this.boardLoc = boardLocation;
@@ -39,6 +49,11 @@ public class Piece implements IPiece{
         this.loc.y = (8 - vertical) * (DispatchAdapter.side / 8) + DispatchAdapter.side / 16;
     }
 
+    /**
+     * Method: Set Image
+     * Accessor method to set the image string.
+     * @param img String that stores the file location for the piece.
+     */
     public void setImage(String img) {
         this.image = img;
     }
@@ -46,7 +61,7 @@ public class Piece implements IPiece{
     /**
      * Accessor method to return the team of the piece.
      * 0 for light team, 1 for dark team
-     * @return
+     * @return an integer of the team (0 - light, 1 - dark)
      */
     public int getTeam() {
         return team;

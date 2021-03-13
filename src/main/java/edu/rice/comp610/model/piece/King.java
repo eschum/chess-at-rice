@@ -14,8 +14,8 @@ public class King extends Piece {
 
     /**
      * Public constructor
-     * @param location The location of the piece in chess notataion
-     * @param team Integer of the team, 0 for light, 1 for dark.
+     * @param location The location of the piece in chess notation
+     * @param team Integer of the team, 0 for light, 1 for dark
      */
     public King(String location, int team) {
         super(location, team);

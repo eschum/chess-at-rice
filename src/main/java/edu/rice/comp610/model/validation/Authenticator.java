@@ -4,8 +4,9 @@ import com.google.gson.JsonObject;
 import java.util.HashMap;
 
 /**
- * Class Authenticator
+ * Class: Authenticator
  * Implements the IAuthenticate Interface.
+ * Design Pattern: Singleton.
  * This class initializes a series of credentials, and facilitates
  * verification as to whether credentials provided match or not.
  */
@@ -13,10 +14,19 @@ public class Authenticator implements IAuthenticate {
     private static Authenticator ref;
     private HashMap<String, String> credentials;
 
+    /**
+     * Private Constructor
+     * Implements the Singleton design pattern.
+     */
     private Authenticator() {
         initCredentials();
     }
 
+    /**
+     * Method: Get Instance
+     * Implements the Singleton design pattern by returning the static / single instance of the class
+     * @return The Static instance of the Authenticator class
+     */
     public static Authenticator getInstance() {
         if (ref == null) ref = new Authenticator();
         return ref;

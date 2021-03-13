@@ -9,13 +9,23 @@ import java.util.ArrayList;
 
 /**
  * Class: ValidateMove
- * Checks if a chess move is valid. Implements the IValidateMove class.
+ * Design Pattern: Singleton
+ * Checks if a chess move is valid. Implements the IValidateMove class
  */
 public class ValidateMove implements IValidateMove{
     private static ValidateMove ref;
 
+    /**
+     * Private Constructor
+     * Implements the Singleton design pattern
+     */
     private ValidateMove() {}
 
+    /**
+     * Method: Get Instance
+     * Implements the Singleton design pattern by returning the static instance of the ValidateMove class
+     * @return The static instance of the ValidateMove class
+     */
     public static ValidateMove getInstance() {
         if (ref == null) ref = new ValidateMove();
         return ref;
@@ -37,7 +47,7 @@ public class ValidateMove implements IValidateMove{
         Piece targetPiece = game.getPieceFromPositions(toLoc);
 
         //Check if a Piece is selected.
-        if (!isPieceSelected(selectedPiece, game))
+        if (!isPieceSelected(selectedPiece))
             return new ImmutablePair<>(1, "A piece was not selected");
 
         //Check if the piece is the same team as the player.
@@ -45,7 +55,7 @@ public class ValidateMove implements IValidateMove{
             return new ImmutablePair<>(2, "Selecting piece of opposite team is not allowed");
 
         //Check if the target location is already occupied by self.
-        else if (isTargetSquareOccupiedBySelf(selectedPiece, targetPiece, game))
+        else if (isTargetSquareOccupiedBySelf(selectedPiece, targetPiece))
             return new ImmutablePair<>(3, "Cannot move onto square already occupied by own piece");
 
         /*
@@ -74,10 +84,9 @@ public class ValidateMove implements IValidateMove{
      * Method: Is Piece Selected
      * Determine whether or not there is a piece selected.
      * @param selectedPiece The Piece (referenced from Game positions map)
-     * @param game The desired Game context
      * @return True if there is a Piece, False if null.
      */
-    boolean isPieceSelected(Piece selectedPiece, Game game) {
+    boolean isPieceSelected(Piece selectedPiece) {
         return !(selectedPiece == null);  //Boolean Zen!
     }
 
@@ -97,11 +106,10 @@ public class ValidateMove implements IValidateMove{
     /**
      * Method: Is Target Square Occupied By Self
      * @param selectedPiece The Piece that is being moved.
-     * @param targetPiece The piece on the swuare that is targeted.
-     * @param game The current game context.
+     * @param targetPiece The piece on the square that is targeted.
      * @return true if there is a piece of the same team there. false if not.
      */
-    boolean isTargetSquareOccupiedBySelf(Piece selectedPiece, Piece targetPiece, Game game) {
+    boolean isTargetSquareOccupiedBySelf(Piece selectedPiece, Piece targetPiece) {
         return targetPiece != null && targetPiece.getTeam() == selectedPiece.getTeam();
     }
 }
