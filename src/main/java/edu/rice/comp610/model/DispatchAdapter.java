@@ -4,8 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import edu.rice.comp610.model.game.Game;
 import edu.rice.comp610.model.game.Player;
+import edu.rice.comp610.model.message.Message;
 import edu.rice.comp610.model.message.StartGame;
-import edu.rice.comp610.model.validation.Authenticator;
 import org.eclipse.jetty.websocket.api.Session;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,10 +18,10 @@ import java.util.Map;
 public class DispatchAdapter {
     public static int side = 600;
     private int gameCounter = 0;
-    private final ArrayList<Game> allGames;
-    private final Map<String, Game> allPlayersToGames;
-    private final Map<Session, Game> allSessions;
-    private final Map<String, Player> allPlayers;  //Need to have a hashmap to quickly set the session of each player
+    private static ArrayList<Game> allGames;
+    private static Map<String, Game> allPlayersToGames;
+    private static Map<Session, Game> allSessions;
+    private static Map<String, Player> allPlayers;  //Need to have a hashmap to quickly set the session of each player
     public static Gson gson;
 
 
@@ -42,18 +42,23 @@ public class DispatchAdapter {
      * Look up which game the leaving session is from.
      * Forward the session close to that game.
      *
-     * Once back, need to remove that player from all affiliated maps.
-     *
+     * Once back, Garbage collect - either the Player, or all Players & the affiliated game.
      * When handleClose execution completes, the last reference to the Game
      * should be removed.
+     *
+     * This method handles leaving due to closed session (exitMessage will be null), or
+     * a Piece (King) may call this method if a King is taken (exitMessage will have a GameOver message)
+     *
      * @param userSession The session that is leaving.
+     * @param exitMessage If the game is over for a reason other than a session close, then the
+     *                    exitMessage will not be null, it will be a Message to pass to the view
      */
-    public void handleClose(Session userSession) {
+    public static void handleClose(Session userSession, Message exitMessage) {
         Game game = allSessions.get(userSession);
         ArrayList<Player> playersToRemove = game.getAllPlayers();
         Player leaver = game.getPlayerFromSession(userSession);
 
-        boolean killGame = game.handleLeave(userSession);
+        boolean killGame = game.handleLeave(userSession, exitMessage);
 
         if (killGame) {
             //Delete all references to the Game.

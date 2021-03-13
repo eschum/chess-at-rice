@@ -1,7 +1,7 @@
 package edu.rice.comp610.model.piece;
 
 import edu.rice.comp610.model.DispatchAdapter;
-
+import edu.rice.comp610.model.game.Player;
 import java.awt.*;
 
 public class Piece implements IPiece{
@@ -15,6 +15,14 @@ public class Piece implements IPiece{
         updateLoc(location);
         this.team = team;
     }
+
+    /**
+     * Method: If Taken
+     * Defines behavior the piece should have if it is taken by the opponent.
+     * Delegates to the subclasses to take individual action.
+     * @param opponent The Piece that has taken the subject piece.
+     */
+    public void ifTaken(Piece opponentPiece, Player opponent) {}
 
     /**
      * Populate the X and Y canvas coordinates for the piece.

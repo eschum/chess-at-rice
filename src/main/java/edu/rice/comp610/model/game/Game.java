@@ -74,39 +74,56 @@ public class Game {
 
     /**
      * Method: Handle Leave
-     * Determine whether the session leaving is a spepctator or a player.
+     * Determine whether the session leaving is a spectator or a player.
      * Return whether or not it is a player; so the DA can remove the rest of the
      * connections.
-     * @param userSession
-     * @return
+     * @param userSession The Session of the player that is leaving (if King taken, just put the victorious
+     *                    player's session here)
+     * @param exitMessage Null if this is a session closure. Otherwise the Message that describes why the game
+     *                    is now over or a player is leaving.
+     * @return true if needed to garbage collect all entities related to the game, or false if just need to
+     * garbage collect the leaving spectator.
      */
-    public boolean handleLeave(Session userSession) {
+    public boolean handleLeave(Session userSession, Message exitMessage) {
         //Determine which player is leaving.
         Player leaver = entities.get(userSession);
 
         //Remove the player from the entity set.
-        entities.remove(userSession);
+        //entities.remove(userSession);
 
-        if (leaver == lightPlayer || leaver == darkPlayer) {
+        if (exitMessage == null) {
+            if (leaver == lightPlayer || leaver == darkPlayer) {
             /*
             If a key player leaves, then send a message to everyone that the game is over.
             Also, need to remove the game from the list in the DA.
              */
-            System.out.print("Player " + leaver.getName() + " has left\n");
-            broadcastMessage(new PlayerLeave(leaver));
-            return true;
+                System.out.print("Player " + leaver.getName() + " has left\n");
+                broadcastMessage(new PlayerLeave(leaver));
+                return true;
 
-        } else {
+            } else {
             /*
             If a spectator leaves, remove them from the spectator list.
             Send a spectator_leave message to let others know the spectator has left.
             Gameplay can continue.
              */
-            System.out.print("Spectator " + leaver.getName() + " left\n");
-            spectators.remove(leaver);
-            broadcastMessage(new SpectatorLeave(leaver));
-            return false;
+                System.out.print("Spectator " + leaver.getName() + " left\n");
+                spectators.remove(leaver);
+                broadcastMessage(new SpectatorLeave(leaver));
+                return false;
+            }
+
+        } else if (exitMessage instanceof KingTaken){
+            /*
+            If a King has been taken, then broadcast the king taken message to all players.
+            Return true to garbage collect all elements of the game.
+             */
+            System.out.print("A Game has ended due to a King being taken.\n");
+            broadcastMessage(exitMessage);
+            return true;
         }
+
+        return false;  //Guard to compile without issue.
     }
 
     /**
@@ -256,6 +273,11 @@ public class Game {
         String name = entities.get(userSession).getName();
         String move = name + ": " + fromLoc + " -> " + toLoc;
         sendUpdateMessage(move);
+
+        //Finally, send any other additional messages or take additional action.
+        if (targetPiece != null) {
+            targetPiece.ifTaken(selectedPiece, entities.get(userSession));
+        }
     }
 
     /**

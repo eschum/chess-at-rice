@@ -210,7 +210,12 @@ function onMessage(msg) {
             insertConnectionMessage(obj.content);
             alert(obj.content);
             //Take action to close or redirect the browser.
-            window.location.replace("/index.html");
+            window.location = "/index.html";
+        case "king_taken":
+            //Write the message that the king has been taken. Gameplay will not continue.
+            insertConnectionMessage(obj.content);
+            alert(obj.content);
+            window.location = "/index.html";
             default:
             break;
     }
