@@ -1,11 +1,13 @@
 package edu.rice.comp610.model;
 
 
+import junit.framework.TestCase;
+
 /**
  * Dispatch Adapter Test
  * Unit Tests for Template Ball World.
  */
-//public class DispatchAdapterTest extends TestCase {
+public class DispatchAdapterTest extends TestCase {
 //   //Instantiate mock and spy ball objects.
 //    private DispatchAdapter da;
 //    private PropertyChangeSupport pcs;
@@ -438,4 +440,4 @@ package edu.rice.comp610.model;
 //        da.addListener(ballSpy2);
 //        da.addListener(fishSpy2);
 //    }
-//}
+}
