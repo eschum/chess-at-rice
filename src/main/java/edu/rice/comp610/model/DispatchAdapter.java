@@ -16,7 +16,6 @@ import java.util.Map;
  * This adapter interfaces with the view (paint objects) and the controller.
  */
 public class DispatchAdapter {
-    public static int side = 600;
     private int gameCounter = 0;
     private static ArrayList<Game> allGames;
     private static Map<String, Game> allPlayersToGames;

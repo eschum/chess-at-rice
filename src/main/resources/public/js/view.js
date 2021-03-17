@@ -306,13 +306,36 @@ function updateBoard_piece(gameMsg) {
     app.clear();
     app.drawBoard();
     gameMsg.lightPieces.forEach(function (obj) {
-        app.drawPiece(obj.image, obj.loc.x, obj.loc.y);
+        app.drawPiece(obj.image, calcBoardX(obj.boardLoc), calcBoardY(obj.boardLoc));
     });
 
     gameMsg.darkPieces.forEach(function (obj) {
-        app.drawPiece(obj.image, obj.loc.x, obj.loc.y);
+        app.drawPiece(obj.image, calcBoardX(obj.boardLoc), calcBoardY(obj.boardLoc));
     });
 }
+
+/**
+ * Function: Calc Board X
+ * Helper function to calculate the canvas x coordinate based on the horizontal character of chess notation.
+ * @param xChar A char representing the chess notation horizontal pos ("a" - "h")
+ * @returns {number} The c coordinate of the image.
+ */
+function calcBoardX(pos) {
+    let horizontal = pos.charCodeAt(0) - 97;
+    //Note: spaceLen = boardSide / 8. boardSize is length of the entire board.
+    return horizontal * spaceLen + spaceLen / 2;
+}
+
+function calcBoardY(pos) {
+    let vertical = pos.charCodeAt(1) - 48;
+    return (8 - vertical) * spaceLen + spaceLen / 2;
+}
+
+
+
+
+
+
 
 /**
  * Helper function to draw the initial board.
