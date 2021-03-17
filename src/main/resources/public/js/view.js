@@ -316,26 +316,29 @@ function updateBoard_piece(gameMsg) {
 
 /**
  * Function: Calc Board X
- * Helper function to calculate the canvas x coordinate based on the horizontal character of chess notation.
- * @param xChar A char representing the chess notation horizontal pos ("a" - "h")
- * @returns {number} The c coordinate of the image.
+ * Helper function to calculate the canvas x coordinate based on a chess notation string.
+ * @param pos The chess notation string of the piece.
+ * Note: spaceLen = boardSide / 8. boardSize is length of the entire board.
+ * @returns {number} The x coordinate of the chess piece image.
  */
 function calcBoardX(pos) {
     let horizontal = pos.charCodeAt(0) - 97;
-    //Note: spaceLen = boardSide / 8. boardSize is length of the entire board.
+    if (isDarkPlayer) horizontal = 7 - horizontal;  //Invert the piece view if the player is darkPlayer.
     return horizontal * spaceLen + spaceLen / 2;
 }
 
+/**
+ * Function: Calc Board Y
+ * Helper function to calculate the canvas y coordinate based on a chess notation string.
+ * @param pos The chess notation string of the piece.
+ * Note: spaceLen = boardSide / 8. boardSize is length of the entire board.
+ * @returns {number} The y coordinate of the chess piece image.
+ */
 function calcBoardY(pos) {
     let vertical = pos.charCodeAt(1) - 48;
+    if (isDarkPlayer) vertical = 8 - vertical + 1;  //Invert the piece view if the player is darkPlayer.
     return (8 - vertical) * spaceLen + spaceLen / 2;
 }
-
-
-
-
-
-
 
 /**
  * Helper function to draw the initial board.
@@ -401,7 +404,18 @@ function reportClick(e) {
 function returnClickPosition(e) {
     let X = e.clientX - e.target.getBoundingClientRect().left;
     let Y = e.clientY - e.target.getBoundingClientRect().top;
-    let boardPos = String.fromCharCode(97 + (X / spaceLen)) + (8 - Math.floor(Y / spaceLen)).toString();
+    let horizontal = Math.floor(X / spaceLen);
+    let vertical = 8 - Math.floor(Y / spaceLen);
+
+    /*
+    If the player is darkPlayer, the board display is inverted.
+    Thus, we need to also invert the clicked chess notation position.
+     */
+    if (isDarkPlayer) {
+        horizontal = 7 - horizontal;
+        vertical = 8 - vertical + 1;
+    }
+    let boardPos = String.fromCharCode(97 + horizontal) + vertical.toString();
 
     //Print debugging info and log the click position
     console.log("click at: " + boardPos);
