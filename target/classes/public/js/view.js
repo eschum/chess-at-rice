@@ -4,8 +4,8 @@ let app;
 let socket;
 
 //Global variables re: chess board size.
-let boardImgFile = "chessboard-600-rice.png";
-let boardSide = 600;
+let boardImgFile = "chessboard-480-rice.png";
+let boardSide = 480;
 let spaceLen = boardSide / 8;
 
 //Global gameplay status
