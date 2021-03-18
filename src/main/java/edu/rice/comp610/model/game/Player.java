@@ -4,13 +4,16 @@ import edu.rice.comp610.model.message.Message;
 import edu.rice.comp610.model.message.PlayerJoin;
 import edu.rice.comp610.model.message.SpectatorJoin;
 import org.eclipse.jetty.websocket.api.Session;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;  //PCL: Observer pattern for game updates and messages.
+import java.io.IOException;
 
 /**
  * Class Player
  * State and behavior for each player that is interacting with the
  * Chess@Rice platform.
  */
-public class Player {
+public class Player implements PropertyChangeListener{
     private String name;
     private final Message joinMessage;
     private Session sess;
@@ -27,6 +30,21 @@ public class Player {
         name = userName;
         sess = userSession;
         joinMessage = new PlayerJoin(this);
+    }
+
+    /**
+     * Method: Property Change
+     * Implement propertyChange from Interface PropertyChangeListener. Send messages and updates
+     * as required by the game.
+     * @param evt
+     */
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (!evt.getPropertyName().equals("broadcast")) return;  //Only the "broadcast" event is implemented.
+        try {
+            sess.getRemote().sendString(evt.getNewValue().toString());
+        } catch (IOException e) {
+            System.out.println("IO Exception");
+        }
     }
 
     /**

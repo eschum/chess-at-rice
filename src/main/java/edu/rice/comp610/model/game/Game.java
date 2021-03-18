@@ -7,10 +7,13 @@ import edu.rice.comp610.model.piece.*;
 import edu.rice.comp610.model.validation.SimpleMoveValidator;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jetty.websocket.api.Session;
+
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.beans.PropertyChangeSupport;
 
 /**
  * Class Game
@@ -22,13 +25,13 @@ public class Game {
     private ArrayList<Piece> lightPieces;
     private ArrayList<Piece> darkPieces;
     private Map<String, Piece> positions;
-    private final ArrayList<Player> spectators;
     private Player lightPlayer;
     private Player darkPlayer;
     private boolean lightPlayerTurn;
     private final Gson gson;
     private final Map<Session, Player> entities;
     private String gameID;
+    private PropertyChangeSupport pcs;  //Observer pattern for game updates and messages.
 
     /**
      * Public Constructor - If we already have two players.
@@ -42,7 +45,6 @@ public class Game {
         darkPlayer = p2;
         entities.put(p1.getSession(), p1);
         entities.put(p2.getSession(), p2);
-        spectators = new ArrayList<>();
         initNewGame();
     }
 
@@ -51,9 +53,9 @@ public class Game {
      * @param ID - String of the game id.
      */
     public Game(String ID) {
+        pcs = new PropertyChangeSupport(this);
         gson = DispatchAdapter.gson;
         entities = new HashMap<>();
-        spectators = new ArrayList<>();
         this.gameID = ID;
         initNewGame();
     }
@@ -79,6 +81,15 @@ public class Game {
     }
 
     /**
+     * Method: Remove Observer
+     * Remove an observer from the update list.
+     * @param pcl The Property Change Listener (player) that should be removed.
+     */
+    public void removeObserver(PropertyChangeListener pcl) {
+        pcs.removePropertyChangeListener("broadcast", pcl);
+    }
+
+    /**
      * Method: Handle Leave
      * Determine whether the session leaving is a spectator or a player.
      * Return whether or not it is a player; so the DA can remove the rest of the
@@ -96,6 +107,7 @@ public class Game {
 
         //Remove the player from the entity set.
         entities.remove(userSession);
+        pcs.removePropertyChangeListener("broadcast", leaver);
 
         if (exitMessage == null) {
             if (leaver == lightPlayer || leaver == darkPlayer) {
@@ -114,7 +126,7 @@ public class Game {
             Gameplay can continue.
              */
                 System.out.print("Spectator " + leaver.getName() + " left\n");
-                spectators.remove(leaver);
+                //spectators.remove(leaver);
                 broadcastMessage(new SpectatorLeave(leaver));
                 return false;
             }
@@ -170,17 +182,8 @@ public class Game {
      */
     public void addEntity(Player p) {
         entities.put(p.getSession(), p);
+        pcs.addPropertyChangeListener("broadcast", p);
     }
-
-    /**
-     * Method: Add Spectator
-     * Description: Mutator method to add a spectator when selected from the lobby.
-     * @param p Player to add to spectator list.
-     */
-    public void addSpectator(Player p) {
-        spectators.add(p);
-    }
-
 
     /**
      * Method: Connect Spectator
@@ -303,14 +306,17 @@ public class Game {
      * @param msg - A Message to send to every entity involved in the game.
      */
     public void broadcastMessage(Message msg) {
-        for (Map.Entry mapElement : entities.entrySet()) {
-            Session currSession = (Session) mapElement.getKey();
-            try {
-                currSession.getRemote().sendString(gson.toJson(msg));
-            } catch (IOException e) {
-                System.out.println("IO Exception");
-            }
-        }
+        pcs.firePropertyChange("broadcast", null, gson.toJson(msg));
+
+
+//        for (Map.Entry mapElement : entities.entrySet()) {
+//            Session currSession = (Session) mapElement.getKey();
+//            try {
+//                currSession.getRemote().sendString(gson.toJson(msg));
+//            } catch (IOException e) {
+//                System.out.println("IO Exception");
+//            }
+//        }
     }
 
     /**

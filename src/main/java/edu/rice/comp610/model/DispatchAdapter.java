@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+
 /**
  * This adapter interfaces with the view (paint objects) and the controller.
  */
@@ -67,6 +68,7 @@ public class DispatchAdapter {
             for (Player p : playersToRemove) {
                 String name = p.getName();
                 Session sess = p.getSession();
+                game.removeObserver(p);
                 allPlayersToGames.remove(name);
                 allSessions.remove(sess);
                 allPlayers.remove(name);
@@ -284,7 +286,6 @@ public class DispatchAdapter {
 
         } else {
             //Otherwise, join as spectator.
-            game.addSpectator(p2);
             System.out.print(p2.getName() + " joined as a spectator\n");
             status = "spectator";
         }
