@@ -122,7 +122,7 @@ window.onload = function() {
     });
 
     //Buttons for interacting with the game.
-    $("#btn-send").click(sendMove);
+    //$("#btn-send").click(sendMove);  //Send the move right away instead. Can enable this for testing.
     $("#btn-clear").click(clearMove);
     $("#btn-send-text").click(sendChatMessage);
 };
@@ -391,6 +391,10 @@ function reportClick(e) {
         moveDestination = boardPos;
         log = document.querySelector(".scrollBox p:nth-last-child(1)");
         log.innerHTML += " -> " + boardPos;
+
+        //Send the move right away!
+        sendMove();
+
     } else {
         //Do nothing - wait for Clear move
     }
