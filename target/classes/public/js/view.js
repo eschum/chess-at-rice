@@ -1,5 +1,4 @@
 'use strict';
-
 //app to draw polymorphic shapes on canvas
 let app;
 let socket;
@@ -87,7 +86,6 @@ function createApp(canvas) {
         }
     }
 
-
     /**
      * Clear the canvas.
      */
@@ -123,23 +121,18 @@ window.onload = function() {
         onConnect(event);
     });
 
-
     //Buttons for interacting with the game.
     $("#btn-send").click(sendMove);
     $("#btn-clear").click(clearMove);
     $("#btn-send-text").click(sendChatMessage);
-
-    //Remove all the balls in case the browser is refreshed.
-    //clear();
-
-    //Send canvas dimensions to the controller.
-    //canvasDims();
 };
 
+/**
+ * Event listener to take action when the page is fully loaded.
+ */
 window.addEventListener('load', (event) => {
     console.log('page is fully loaded');
 });
-
 
 /**
  * Event-listener wrapper to encapsulate any required event listeners.
@@ -231,6 +224,10 @@ function insertChat(str) {
     log.scrollTop = log.scrollHeight;
 }
 
+/**
+ * Print a string to the center of the log box. Used for connections and disconnections.
+ * @param str A message string, likely about a connection or disconnection.
+ */
 function insertConnectionMessage(str) {
     let log = document.getElementById('scrollBox');
     log.innerHTML += "<p class='log'>" + str + "<\p>";
@@ -238,7 +235,6 @@ function insertConnectionMessage(str) {
     blank_log.remove();
     log.scrollTop = log.scrollHeight;
 }
-
 
 /**
  * Helper method to respond when a connection is opened.
@@ -277,7 +273,11 @@ function onConnect(event) {
     socket.send(msg);
 }
 
-
+/**
+ * Write to the match log record when a move is happening.
+ * This is called after the update message is received from the server.
+ * @param moveString
+ */
 function addUpdateToLog(moveString) {
     if (moveString == "void") return;  //Empty position update for manual joining update of a spectator.
     let log = document.getElementById('scrollBox');
@@ -471,9 +471,6 @@ function sendChatMessage() {
     document.getElementById("chat-field").value = "";
 }
 
-
-
-
 /**
  * Function to clear the move and remove the text from the log.
  */
@@ -481,7 +478,6 @@ function clearMove() {
     if (moveOrigin != null) {
         moveOrigin = null;
         moveDestination = null;
-
 
         let log = document.querySelector(".scrollBox p:nth-last-child(1)");
         log.remove();

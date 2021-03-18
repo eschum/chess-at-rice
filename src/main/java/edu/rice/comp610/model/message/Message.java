@@ -1,11 +1,12 @@
 package edu.rice.comp610.model.message;
 
 /**
- * Message Superclass that implements the IMessage interface.
+ * Message Superclass.
  * Subclasses will be different types of messages to send to
  * the view.
+ * Class is abstract as it would not make sense / be possible to declare a message on its own.
  */
-public class Message implements IMessage {
+public abstract class Message {
     String type;
 
     /**

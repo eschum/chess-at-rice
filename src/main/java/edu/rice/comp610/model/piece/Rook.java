@@ -1,5 +1,7 @@
 package edu.rice.comp610.model.piece;
 
+import edu.rice.comp610.model.game.Player;
+
 /**
  * Class: Rook
  * Implementation of the Rook piece object.
@@ -22,7 +24,14 @@ public class Rook extends Piece {
         }
     }
 
-
+    /**
+     * Method: If Taken.
+     * No Action.
+     * @param opponentPiece The opponent's piece that is overtaking.
+     * @param opponent The Piece that has taken the subject piece.
+     */
+    @Override
+    public void ifTaken(Piece opponentPiece, Player opponent) { }
 }
 
 

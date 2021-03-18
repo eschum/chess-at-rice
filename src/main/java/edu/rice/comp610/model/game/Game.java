@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import edu.rice.comp610.model.DispatchAdapter;
 import edu.rice.comp610.model.message.*;
 import edu.rice.comp610.model.piece.*;
-import edu.rice.comp610.model.validation.ValidateMove;
+import edu.rice.comp610.model.validation.SimpleMoveValidator;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jetty.websocket.api.Session;
 import java.io.IOException;
@@ -238,7 +238,7 @@ public class Game {
      */
     public void processMove(Session userSession, String fromLoc, String toLoc) {
         //Validate the move. Send error message and return if the move is not valid.
-        Pair<Integer, String> validStatus = ValidateMove.getInstance().checkIfLegal(fromLoc, toLoc,
+        Pair<Integer, String> validStatus = SimpleMoveValidator.getInstance().checkIfLegal(fromLoc, toLoc,
                 entities.get(userSession), this);
         if (validStatus != null && validStatus.getKey() != 0) {
             //A piece wasn't selected.

@@ -12,22 +12,22 @@ import java.util.ArrayList;
  * Design Pattern: Singleton
  * Checks if a chess move is valid. Implements the IValidateMove class
  */
-public class ValidateMove implements IValidateMove{
-    private static ValidateMove ref;
+public class SimpleMoveValidator implements IValidateMove{
+    private static SimpleMoveValidator ref;
 
     /**
      * Private Constructor
      * Implements the Singleton design pattern
      */
-    private ValidateMove() {}
+    private SimpleMoveValidator() {}
 
     /**
      * Method: Get Instance
      * Implements the Singleton design pattern by returning the static instance of the ValidateMove class
      * @return The static instance of the ValidateMove class
      */
-    public static ValidateMove getInstance() {
-        if (ref == null) ref = new ValidateMove();
+    public static SimpleMoveValidator getInstance() {
+        if (ref == null) ref = new SimpleMoveValidator();
         return ref;
     }
 

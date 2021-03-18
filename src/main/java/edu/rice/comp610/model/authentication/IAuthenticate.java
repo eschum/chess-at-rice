@@ -1,4 +1,4 @@
-package edu.rice.comp610.model.validation;
+package edu.rice.comp610.model.authentication;
 
 import com.google.gson.JsonObject;
 
@@ -8,6 +8,14 @@ import com.google.gson.JsonObject;
  * have.
  */
 public interface IAuthenticate {
+
+    /**
+     * Method: Get Instance
+     * Specification of the singleton design pattern API
+     * @return null: Will be implemented by the subclass constructor.
+     */
+    static IAuthenticate getInstance() { return null; }
+
     /**
      * Method: Init Credentials
      * Perform the initial configuration of the credentials.

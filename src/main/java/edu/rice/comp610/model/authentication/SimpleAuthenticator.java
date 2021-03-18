@@ -1,4 +1,4 @@
-package edu.rice.comp610.model.validation;
+package edu.rice.comp610.model.authentication;
 
 import com.google.gson.JsonObject;
 import java.util.HashMap;
@@ -10,15 +10,15 @@ import java.util.HashMap;
  * This class initializes a series of credentials, and facilitates
  * verification as to whether credentials provided match or not.
  */
-public class Authenticator implements IAuthenticate {
-    private static Authenticator ref;
+public class SimpleAuthenticator implements IAuthenticate {
+    private static SimpleAuthenticator ref;
     private HashMap<String, String> credentials;
 
     /**
      * Private Constructor
      * Implements the Singleton design pattern.
      */
-    private Authenticator() {
+    private SimpleAuthenticator() {
         initCredentials();
     }
 
@@ -27,8 +27,8 @@ public class Authenticator implements IAuthenticate {
      * Implements the Singleton design pattern by returning the static / single instance of the class
      * @return The Static instance of the Authenticator class
      */
-    public static Authenticator getInstance() {
-        if (ref == null) ref = new Authenticator();
+    public static IAuthenticate getInstance() {
+        if (ref == null) ref = new SimpleAuthenticator();
         return ref;
     }
 

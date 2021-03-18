@@ -1,5 +1,7 @@
 package edu.rice.comp610.model.piece;
 
+import edu.rice.comp610.model.game.Player;
+
 /**
  * Class Bishop
  * Class for the Bishop chess piece.
@@ -20,6 +22,15 @@ public class Bishop extends Piece {
             setImage("bdt60.png");
         }
     }
+
+    /**
+     * Method: If Taken.
+     * No Action.
+     * @param opponentPiece The opponent's piece that is overtaking.
+     * @param opponent The Piece that has taken the subject piece.
+     */
+    @Override
+    public void ifTaken(Piece opponentPiece, Player opponent) { }
 }
 
 

@@ -5,9 +5,9 @@ import edu.rice.comp610.model.game.Player;
 /**
  * Class: Piece
  * Superclass for all chess piece objects.
- * Implements the IPiece interface
+ *
  */
-public class Piece implements IPiece{
+public abstract class Piece {
     private String boardLoc;
     private String image;
     private final int team;  //0 for light, 1 for dark.
@@ -25,10 +25,10 @@ public class Piece implements IPiece{
     /**
      * Method: If Taken
      * Defines behavior the piece should have if it is taken by the opponent.
-     * Delegates to the subclasses to take individual action.
+     * Abstract method: Need to know which kind of piece this is to perform the correct action.
      * @param opponent The Piece that has taken the subject piece.
      */
-    public void ifTaken(Piece opponentPiece, Player opponent) {}
+    public abstract void ifTaken(Piece opponentPiece, Player opponent);
 
     /**
      * Method: UpdateLoc

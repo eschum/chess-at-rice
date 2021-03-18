@@ -15,6 +15,13 @@ import java.util.ArrayList;
 public interface IValidateMove {
 
     /**
+     * Method: Get Instance.
+     * Specify the singleton design pattern API.
+     * @return An IValidateMove subclass.
+     */
+    static IValidateMove getInstance() { return null; }
+
+    /**
      * Method: Check If Legal
      * Given the chess notation of the current piece location, the desired piece location,
      * and the game (which will contain the board layout), determine whether or not the
