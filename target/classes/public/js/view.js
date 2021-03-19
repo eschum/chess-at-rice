@@ -7,6 +7,8 @@ let socket;
 let boardImgFile = "chessboard-480-rice.png";
 let boardSide = 480;
 let spaceLen = boardSide / 8;
+let mouseDelaySetting = 3;
+let mouseMoveInterval = mouseDelaySetting;
 
 //Global gameplay status
 let gameStarted = false;
@@ -17,6 +19,11 @@ let isDarkPlayer = false;
 let moveOrigin = null;
 let moveDestination = null;
 let gameID;
+let squares = new Array();
+let pieces = new Array();
+let squareImages = new Array();
+let pieceImages = new Array();
+
 
 //Player Data
 let username;
@@ -24,7 +31,7 @@ let username;
 /**
  * Create the ball world app for a canvas
  * @param canvas The canvas to draw balls on
- * @returns {{dims: {width, height}, drawCircle: drawCircle, clear: clear}}
+ *
  */
 function createApp(canvas) {
     let c = canvas.getContext("2d");
@@ -42,12 +49,56 @@ function createApp(canvas) {
         let halfSide = 30;
 
         newImg.onload = function() {
-            console.log(imageStr + " " + x - halfSide + " " + y - halfSide);
             c.drawImage(newImg, x - halfSide, y - halfSide);
         }
 
-        newImg.style.zIndex = 3;
+        newImg.style.zIndex = "1";
     }
+
+    let drawSquare = function(imageStr, x, y) {
+        let newImg = new Image();
+        newImg.src = imageStr;
+        let halfSide = spaceLen / 2;
+
+        newImg.onload = function() {
+            c.drawImage(newImg, x - halfSide, y - halfSide);
+        }
+    }
+
+    let loadAndDrawImg = function(imageStr, x, y) {
+        let newImg = new Image();
+        newImg.src = imageStr;
+        let halfSide = 30;
+
+        newImg.onload = function() {
+            c.drawImage(newImg, x - halfSide, y - halfSide);
+        }
+
+        pieceImages.push(newImg);
+    }
+
+    let drawImgOnly = function(Img, x, y) {
+        c.drawImage(Img, x - 30, y - 30);
+    }
+
+    let loadAndDrawSquare = function(imageStr, x, y) {
+        let newImg = new Image();
+        newImg.src = imageStr;
+        let halfSide = 30;
+
+        newImg.onload = function() {
+            c.drawImage(newImg, x - halfSide, y - halfSide);
+        }
+
+        squareImages.push(newImg);
+    }
+
+
+    let drawSquareOnly = function(Img, x, y) {
+        let halfSide = spaceLen / 2;
+        c.drawImage(Img, x - halfSide, y - halfSide);
+    }
+
 
     /**
      * Clear the canvas.
@@ -59,6 +110,11 @@ function createApp(canvas) {
     return {
         drawBoard: drawBoard,
         drawPiece: drawPiece,
+        drawSquare: drawSquare,
+        loadAndDrawImg: loadAndDrawImg,
+        drawImgOnly: drawImgOnly,
+        loadAndDrawSquare: loadAndDrawSquare,
+        drawSquareOnly: drawSquareOnly,
         clear: clear,
         dims: {height: canvas.height, width: canvas.width}
     }
@@ -101,6 +157,7 @@ window.addEventListener('load', (event) => {
 document.addEventListener('DOMContentLoaded', function () {
     let can = document.querySelector("canvas");
     can.addEventListener("click", reportClick, false);
+    can.addEventListener("mousemove", moveMouse, false);
 });
 
 /**
@@ -266,24 +323,36 @@ function addUpdateToLog(moveString) {
 function updateBoard_piece(gameMsg) {
     app.clear();
     app.drawBoard();
+    squares = [];
+    pieces = [];
+    squareImages = [];
+    pieceImages = [];
 
-    //Draw the selected highlight piece here.
+    //Load and Draw the "highlighted previous piece move" squares
     //Note: Need to check the type first; so we short circuit and never look up the fromLoc field.
     console.log(gameMsg.type + " " + gameMsg.fromLoc)
     if (gameMsg.type === "update_game" && gameMsg.fromLoc !== undefined) {
         //draw the location prior to the move.
-        app.drawPiece("selected_square.png", calcBoardX(gameMsg.fromLoc), calcBoardY(gameMsg.fromLoc));
+
+        app.loadAndDrawSquare("selected_square.png", calcBoardX(gameMsg.fromLoc), calcBoardY(gameMsg.fromLoc));
+        squares.push(["selected_square.png", calcBoardX(gameMsg.fromLoc), calcBoardY(gameMsg.fromLoc)]);
+
         //draw the location after the move.
-        app.drawPiece("selected_square.png", calcBoardX(gameMsg.toLoc) , calcBoardY(gameMsg.toLoc));
+        app.loadAndDrawSquare("selected_square.png", calcBoardX(gameMsg.toLoc), calcBoardY(gameMsg.toLoc));
+        squares.push(["selected_square.png", calcBoardX(gameMsg.toLoc), calcBoardY(gameMsg.toLoc)]);
     }
 
-
+    //Load and draw the pieces
     gameMsg.lightPieces.forEach(function (obj) {
-        app.drawPiece(obj.image, calcBoardX(obj.boardLoc), calcBoardY(obj.boardLoc));
+        //app.drawPiece(obj.image, calcBoardX(obj.boardLoc), calcBoardY(obj.boardLoc));
+        app.loadAndDrawImg(obj.image, calcBoardX(obj.boardLoc), calcBoardY(obj.boardLoc));
+        pieces.push([obj.image, calcBoardX(obj.boardLoc), calcBoardY(obj.boardLoc), obj.boardLoc]);
     });
 
     gameMsg.darkPieces.forEach(function (obj) {
-        app.drawPiece(obj.image, calcBoardX(obj.boardLoc), calcBoardY(obj.boardLoc));
+        //app.drawPiece(obj.image, calcBoardX(obj.boardLoc), calcBoardY(obj.boardLoc));
+        app.loadAndDrawImg(obj.image, calcBoardX(obj.boardLoc), calcBoardY(obj.boardLoc));
+        pieces.push([obj.image, calcBoardX(obj.boardLoc), calcBoardY(obj.boardLoc), obj.boardLoc]);
     });
 
 
@@ -399,6 +468,46 @@ function returnClickPosition(e) {
     //Print debugging info and log the click position
     console.log("click at: " + boardPos);
     return boardPos;
+}
+
+let X, Y;
+let needForRAF = true;
+
+function moveMouse(e) {
+    if (moveOrigin == null || moveDestination != null || mouseMoveInterval-- > 0) return;  //take no action if no move is selected.
+
+    X = e.clientX - e.target.getBoundingClientRect().left;
+    Y = e.clientY - e.target.getBoundingClientRect().top;
+
+    if (needForRAF) {
+        needForRAF = false;
+        requestAnimationFrame(mouseMoveUpdateCanvas);
+    }
+
+}
+
+function mouseMoveUpdateCanvas(timestamp) {
+    needForRAF = true;
+    //mouseMoveInterval = mouseDelaySetting;
+    //Re-draw the board, squares, and pieces
+    app.clear();
+    app.drawBoard();
+
+    let j = 0;
+    squares.forEach(function (obj) {
+        app.drawSquareOnly(squareImages[j++], obj[1], obj[2]);
+        //app.drawSquare(obj[0], obj[1], obj[2]);
+    });
+
+    let i = 0;
+    pieces.forEach(function (obj) {
+        if (obj[3] != moveOrigin)
+            //app.drawPiece(obj[0], obj[1], obj[2]);
+            app.drawImgOnly(pieceImages[i], obj[1], obj[2])
+        else
+            app.drawImgOnly(pieceImages[i], X , Y);
+        i++;
+    });
 }
 
 /**
