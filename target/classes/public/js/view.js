@@ -31,45 +31,6 @@ function createApp(canvas) {
     let boardImg = new Image();
     boardImg.src = boardImgFile;
 
-    /**
-     * Draw a circle
-     * @param x  The x location coordinate
-     * @param y  The y location coordinate
-     * @param radius  The circle radius
-     * @param color The circle color
-     */
-    let drawCircle = function(x, y, radius, color) {
-        c.fillStyle = color;
-        c.beginPath();
-        c.arc(x, y, radius, 0, 2 * Math.PI, false);
-        c.closePath();
-        c.fill();
-    };
-
-    /**
-     * Draw a fish image.
-     * @param x - fish x pos.
-     * @param y - fish y pos
-     * @param imgName - name of the image to draw
-     * @param scale - scaling factor to scale the image by
-     * @param flip - boolean whether or not the image should be flipped.
-     * @param angle - How the image should be scaled.
-     */
-    let drawFish = function(x, y, imgName, scale, flip, angle) {
-        let Img = new Image();
-        Img.src = imgName;
-        let height = Img.height;
-        let width = Img.width;
-
-        c.save();
-        c.translate(x, y);
-        c.rotate(angle);
-        if (flip) c.scale(1, -1); //Flip only after rotating the canvas to the proper angle.
-        c.translate(- width * scale / 2, - height * scale / 2);
-        c.drawImage(Img, 0, 0, width * scale, height * scale);
-        c.translate(width * scale / 2, height * scale / 2)
-        c.restore();
-    }
 
     let drawBoard = function() {
         c.drawImage(boardImg, 0, 0, boardSide, boardSide);
@@ -84,6 +45,8 @@ function createApp(canvas) {
             console.log(imageStr + " " + x - halfSide + " " + y - halfSide);
             c.drawImage(newImg, x - halfSide, y - halfSide);
         }
+
+        newImg.style.zIndex = 3;
     }
 
     /**
@@ -94,8 +57,6 @@ function createApp(canvas) {
     };
 
     return {
-        drawCircle: drawCircle,
-        drawFish: drawFish,
         drawBoard: drawBoard,
         drawPiece: drawPiece,
         clear: clear,
@@ -300,11 +261,23 @@ function addUpdateToLog(moveString) {
 
 /**
  * Render the positions of all the current pieces on the board.
- * @param game
+ * @param gameMsg The Websockets message from the server with an update of the game's condition.
  */
 function updateBoard_piece(gameMsg) {
     app.clear();
     app.drawBoard();
+
+    //Draw the selected highlight piece here.
+    //Note: Need to check the type first; so we short circuit and never look up the fromLoc field.
+    console.log(gameMsg.type + " " + gameMsg.fromLoc)
+    if (gameMsg.type === "update_game" && gameMsg.fromLoc !== undefined) {
+        //draw the location prior to the move.
+        app.drawPiece("selected_square.png", calcBoardX(gameMsg.fromLoc), calcBoardY(gameMsg.fromLoc));
+        //draw the location after the move.
+        app.drawPiece("selected_square.png", calcBoardX(gameMsg.toLoc) , calcBoardY(gameMsg.toLoc));
+    }
+
+
     gameMsg.lightPieces.forEach(function (obj) {
         app.drawPiece(obj.image, calcBoardX(obj.boardLoc), calcBoardY(obj.boardLoc));
     });
@@ -312,6 +285,8 @@ function updateBoard_piece(gameMsg) {
     gameMsg.darkPieces.forEach(function (obj) {
         app.drawPiece(obj.image, calcBoardX(obj.boardLoc), calcBoardY(obj.boardLoc));
     });
+
+
 }
 
 /**

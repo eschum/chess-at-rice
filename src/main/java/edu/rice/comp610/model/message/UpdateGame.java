@@ -12,6 +12,9 @@ public class UpdateGame extends Message {
     private final ArrayList<Piece> darkPieces;
     private final boolean lightPlayerTurn;
     private final String move;
+    private final String fromLoc;
+    private final String toLoc;
+
 
     /**
      * Constructor
@@ -21,11 +24,14 @@ public class UpdateGame extends Message {
      * @param move - string describing the most recent move (will be NULL if sending manual update for
      *             newly-joining spectator)
      */
-    public UpdateGame(ArrayList<Piece> light, ArrayList<Piece> dark, boolean lightTurn, String move) {
+    public UpdateGame(ArrayList<Piece> light, ArrayList<Piece> dark, boolean lightTurn, String move,
+                      String fromLoc, String toLoc) {
         type = "update_game";
         lightPieces = light;
         darkPieces = dark;
         lightPlayerTurn = lightTurn;
         this.move = move;
+        this.fromLoc = fromLoc;
+        this.toLoc = toLoc;
     }
 }

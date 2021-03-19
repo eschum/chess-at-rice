@@ -50,6 +50,22 @@
             border-color: #002169;
         }
 
+        .table-curved th:first-child {
+            border-radius: 6px 0 0 0;
+        }
+        .table-curved th:last-child {
+            border-radius: 0 6px 0 0;
+        }
+        .table-curved th:only-child{
+            border-radius: 6px 6px 0 0;
+        }
+        .table-curved tr:last-child td:first-child {
+            border-radius: 0 0 0 6px;
+        }
+        .table-curved tr:last-child td:last-child {
+            border-radius: 0 0 6px 0;
+        }
+
     </style>
 </head>
 <body>
@@ -62,8 +78,8 @@
             <h3>Chess@Rice Lobby</h3>
             <br>
             <!--Table For Game Entries-->
-            <div class="panel panel-default">
-            <table class="table table-hover" id="gameTable">
+
+            <table class="table table-curved table-hover " id="gameTable">
                 <thead>
                 <tr>
                     <th scope="gameID">Game ID</th>
@@ -90,7 +106,7 @@
                 </tr>
                 </tbody>
             </table>
-            </div>
+
             <!--List Of Buttons -->
             <div class="row justify-content-center input-group">
                 <button class="btn btn-primary mr-1" id="btn-new">New Game</button>
