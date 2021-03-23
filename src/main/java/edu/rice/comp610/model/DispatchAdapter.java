@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import edu.rice.comp610.model.game.Game;
 import edu.rice.comp610.model.game.Player;
+import edu.rice.comp610.model.message.HeartBeatResponseMessage;
 import edu.rice.comp610.model.message.Message;
 import edu.rice.comp610.model.message.StartGame;
 import org.eclipse.jetty.websocket.api.Session;
@@ -151,6 +152,21 @@ public class DispatchAdapter {
                 content = content.substring(1, content.length() - 1);
                 allSessions.get(userSession).processChat(userSession, content);
             }
+            case "heartbeat" -> handleHeartBeat(userSession);
+        }
+    }
+
+    /**
+     * Method: Handle Heart Beat
+     * Respond to a heartbeat check from the view.
+     * Current implementation: Respond with an empty message.
+     * @param userSession The session that sent a heartbeat
+     */
+    private void handleHeartBeat(Session userSession) {
+        try {
+            userSession.getRemote().sendString(gson.toJson(HeartBeatResponseMessage.getInstance()));
+        } catch (IOException e) {
+            System.out.println("IO Exception");
         }
     }
 

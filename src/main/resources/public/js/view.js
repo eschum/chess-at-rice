@@ -142,6 +142,12 @@ window.onload = function() {
     //$("#btn-send").click(sendMove);  //Send the move right away instead. Can enable this for testing.
     $("#btn-clear").click(clearMove);
     $("#btn-send-text").click(sendChatMessage);
+
+    /*
+    Send a heartbeat message to the server every 10 seconds.
+     */
+    let heartbeatInterval = 10000;
+    setInterval(sendHeartBeat, heartbeatInterval);
 };
 
 /**
@@ -222,11 +228,16 @@ function onMessage(msg) {
             alert(obj.content);
             //Take action to close or redirect the browser.
             window.location = "/index.html";
+            break;
         case "king_taken":
             //Write the message that the king has been taken. Gameplay will not continue.
             insertConnectionMessage(obj.content);
             alert(obj.content);
             window.location = "/index.html";
+            break;
+        case "heartbeat_response":
+            console.log("Heartbeat response received");
+            break;
             default:
             break;
     }
@@ -571,3 +582,16 @@ function clearMove() {
         log.remove();
     }
 }
+
+/**
+ * Function: Send Heart Beat
+ * Helper function to send a heartbeat message to the server.
+ * Currently this function sends no other parameters, but could be
+ * expanded to sync a game clock, provide other status updates, etc.
+ */
+function sendHeartBeat () {
+    let msgJSON = {type: "heartbeat"};
+    let msg = JSON.stringify(msgJSON);
+    socket.send(msg);
+}
+
