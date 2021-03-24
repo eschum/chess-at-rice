@@ -146,9 +146,62 @@ public class Game {
             }
 
             return true;
+
+        } else if (exitMessage instanceof ResignationMessage || exitMessage instanceof  DrawAcceptedMessage){
+            //If there is another type of message, then just send it.
+            broadcastMessage(exitMessage);
+            try {
+                userSession.getRemote().sendString(gson.toJson(exitMessage));
+            } catch (IOException e) {
+                System.out.println("IO Exception");
+            }
+            return true;
         }
 
         return false;  //Guard to compile without issue.
+    }
+
+    /**
+     * Method: Send Draw Request
+     * Logic for communication around sending a draw:
+     * 1. User presses the button in the View to request a draw, message to server.
+     * 2. Server sends confirm_draw_request message to other player.
+     * 3. Other player responds yes or no, message sent back to server.
+     * 4. Server ends game and broadcasts or alerts feedback to requesting user.
+     * @param userSession the session that is requesting the draw.
+     */
+    public void sendDrawRequest(Session userSession) {
+        /*
+        We need to send the draw request to the other player.
+        Figure out the opposite player, and send the confirm_draw_request message
+         */
+        Player p = getPlayerFromSession(userSession);
+        Player otherPlayer = p == lightPlayer ? darkPlayer : lightPlayer;
+
+        //Send the draw request to the other player
+        try {
+            otherPlayer.getSession().getRemote().sendString(gson.toJson(new DrawRequestMessage(p)));
+        } catch (IOException e) {
+            System.out.println("IO Exception");
+        }
+    }
+
+    /**
+     * Method: Draw Denial Send Message
+     * Send back the denial message in event of a draw
+     * @param userSession The session that denied the draw.
+     * @param msg The message - draw denial.
+     */
+    public void drawDenialSendMessage(Session userSession, Message msg) {
+        Player p = getPlayerFromSession(userSession);
+        Player otherPlayer = p == lightPlayer ? darkPlayer : lightPlayer;
+
+        //Send the message to the other player
+        try {
+            otherPlayer.getSession().getRemote().sendString(gson.toJson(new DrawDeniedMessage(p)));
+        } catch (IOException e) {
+            System.out.println("IO Exception");
+        }
     }
 
     /**

@@ -141,6 +141,8 @@ window.onload = function() {
     //Buttons for interacting with the game.
     //$("#btn-send").click(sendMove);  //Send the move right away instead. Can enable this for testing.
     $("#btn-clear").click(clearMove);
+    $("#btn-draw").click(requestDraw);
+    $("#btn-resign").click(requestResign);
     $("#btn-send-text").click(sendChatMessage);
 
     /*
@@ -237,6 +239,24 @@ function onMessage(msg) {
             break;
         case "heartbeat_response":
             console.log("Heartbeat response received");
+            break;
+        case "resignation":
+            insertConnectionMessage(obj.content);
+            alert(obj.content);
+            window.location = "/index.html";
+            break;
+        case "draw_request_from_server":
+            receiveDrawRequest(obj.content);
+            break;
+        case "draw_accepted":
+            insertConnectionMessage(obj.content);
+            alert(obj.content);
+            window.location = "/index.html";
+            break;
+        case "draw_denied":
+            insertConnectionMessage(obj.content);
+            alert(obj.content);
+            //Play continues.
             break;
             default:
             break;
@@ -574,6 +594,8 @@ function sendChatMessage() {
  * Function to clear the move and remove the text from the log.
  */
 function clearMove() {
+    if (!trueIfTurn()) return;  //Only permit this functionality if it is the user's turn.
+
     if (moveOrigin != null) {
         moveOrigin = null;
         moveDestination = null;
@@ -584,14 +606,80 @@ function clearMove() {
 }
 
 /**
+ * Function: Send Message
+ * Helper function to send a message of a given type.
+ * @param str
+ */
+function sendMessage(str) {
+    let msgJSON = {type: str};
+    let msg = JSON.stringify(msgJSON);
+    socket.send(msg);
+}
+
+
+/**
  * Function: Send Heart Beat
  * Helper function to send a heartbeat message to the server.
  * Currently this function sends no other parameters, but could be
  * expanded to sync a game clock, provide other status updates, etc.
  */
 function sendHeartBeat () {
-    let msgJSON = {type: "heartbeat"};
-    let msg = JSON.stringify(msgJSON);
-    socket.send(msg);
+    sendMessage("heartbeat");
+}
+
+/**
+ * Function: Resign
+ * Send message to the server that this user is requesting a resign.
+ * Further alerts to the player are handled when the answer message
+ * is received.
+ */
+function requestResign () {
+    if (!trueIfTurn()) return;
+    sendMessage("request_resign")
+}
+
+/**
+ *  Function: Request Draw
+ *  Send a message to the server in request of a draw.
+ *  Can only do this when it is your turn.
+ *  Further alerts to the player are handled when the answer message
+ *  is received.
+ */
+function requestDraw() {
+    if (!trueIfTurn()) return;
+    sendMessage("request_draw")
+}
+
+/**
+ * Function: Receive Draw Request
+ * Respond when a draw request is sent from the server.
+ * @param str The message to display in the confirm dialog.
+ */
+function receiveDrawRequest(str) {
+    if (confirm(str)) {
+        //If the user selects yes, then agree.
+        sendMessage("draw_agree");
+
+    } else {
+        //If the user instead cancels.
+        sendMessage("draw_deny");
+    }
+}
+
+/**
+ * Function: True If Turn
+ * Helper function to check whether it is the user's turn or not.
+ * @returns {boolean}
+ */
+function trueIfTurn() {
+    if (isDarkPlayer && !lightPlayerTurn || isLightPlayer && lightPlayerTurn)
+        return true;
+    else if (isDarkPlayer || isLightPlayer) {
+        alert("Can only use this functionality when it is your turn!");
+        return false;
+    } else {
+        alert("You are only spectating.");
+        return false;
+    }
 }
 

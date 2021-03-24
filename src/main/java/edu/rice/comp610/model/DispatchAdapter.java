@@ -4,9 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import edu.rice.comp610.model.game.Game;
 import edu.rice.comp610.model.game.Player;
-import edu.rice.comp610.model.message.HeartBeatResponseMessage;
-import edu.rice.comp610.model.message.Message;
-import edu.rice.comp610.model.message.StartGame;
+import edu.rice.comp610.model.message.*;
 import org.eclipse.jetty.websocket.api.Session;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,6 +22,17 @@ public class DispatchAdapter {
     private static Map<Session, Game> allSessions;
     private static Map<String, Player> allPlayers;  //Need to have a hashmap to quickly set the session of each player
     public static Gson gson;
+
+    /**
+     * Method: Get Sending Player
+     * Return the player of the associated session
+     * @param userSession The session in question
+     * @return The Player object associated with the session.
+     */
+    private Player getSendingPlayer(Session userSession) {
+        Game game = allSessions.get(userSession);
+        return game.getPlayerFromSession(userSession);
+    }
 
 
     /**
@@ -147,12 +156,32 @@ public class DispatchAdapter {
                 allSessions.get(userSession).processMove(userSession, from, to);
             }
             case "chat" -> {
-                System.out.print("Processed a chat message");
+                System.out.print("Processed a chat message\n");
                 String content = parsedMsg.get("content").toString();
                 content = content.substring(1, content.length() - 1);
                 allSessions.get(userSession).processChat(userSession, content);
             }
             case "heartbeat" -> handleHeartBeat(userSession);
+            case "request_draw" -> {
+                System.out.print("User requested a draw\n");
+                allSessions.get(userSession).sendDrawRequest(userSession);
+            }
+            case "request_resign" -> {
+                System.out.print("User requested a resignation\n");
+                ResignationMessage resignMsg = new ResignationMessage(getSendingPlayer(userSession));
+                handleClose(userSession, resignMsg);
+            }
+            case "draw_agree" -> {
+                System.out.print("A draw is agreed\n");
+                DrawAcceptedMessage drawMsg = new DrawAcceptedMessage(getSendingPlayer(userSession));
+                handleClose(userSession, drawMsg);
+            }
+            case "draw_deny" -> {
+                System.out.print("A draw is denied\n");
+                DrawDeniedMessage drawMsg = new DrawDeniedMessage(getSendingPlayer(userSession));
+                //Just return to sender.
+                allSessions.get(userSession).drawDenialSendMessage(userSession, drawMsg);
+            }
         }
     }
 
