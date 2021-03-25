@@ -61,7 +61,7 @@ function createApp(canvas) {
         let halfSide = spaceLen / 2;
 
         newImg.onload = function() {
-            c.drawImage(newImg, x - halfSide, y - halfSide);
+            c.drawImage(newImg, 2 + x - halfSide - 0.5 * x / 60, 2 + y - halfSide - 0.5 * y / 30);
         }
     }
 
@@ -81,13 +81,20 @@ function createApp(canvas) {
         c.drawImage(Img, x - 30, y - 30);
     }
 
-    let loadAndDrawSquare = function(imageStr, x, y) {
+    /**
+     * Function: Load and Draw Square
+     * Draws the square that will cover the board.
+     * @param imageStr
+     * @param x
+     * @param y
+     */
+    let loadAndDrawSquare = function(imageStr, x, y, ) {
         let newImg = new Image();
         newImg.src = imageStr;
         let halfSide = 30;
 
-        newImg.onload = function() {
-            c.drawImage(newImg, x - halfSide, y - halfSide);
+        newImg.onload = async function() {
+            c.drawImage(newImg, 2 + x - halfSide - 0.5 * x / 60, 2 + y - halfSide- 0.5 * y / 60);
         }
 
         squareImages.push(newImg);
@@ -219,6 +226,8 @@ function onMessage(msg) {
             alert(obj.content);
             let logLast = document.querySelector(".scrollBox p:nth-last-child(1)");
             logLast.remove();
+            //reset piece positions.
+            resetPiecePositions();
             break;
         case "spectator_leave":
             //Write the message that the spectator has left. Allow gameplay to continue.
@@ -351,7 +360,7 @@ function addUpdateToLog(moveString) {
  * Render the positions of all the current pieces on the board.
  * @param gameMsg The Websockets message from the server with an update of the game's condition.
  */
-function updateBoard_piece(gameMsg) {
+async function updateBoard_piece(gameMsg) {
     app.clear();
     app.drawBoard();
     squares = [];
@@ -369,15 +378,16 @@ function updateBoard_piece(gameMsg) {
         squares.push(["selected_square.png", calcBoardX(gameMsg.fromLoc), calcBoardY(gameMsg.fromLoc)]);
 
         //draw the location after the move.
-        app.loadAndDrawSquare("selected_square.png", calcBoardX(gameMsg.toLoc), calcBoardY(gameMsg.toLoc));
         squares.push(["selected_square.png", calcBoardX(gameMsg.toLoc), calcBoardY(gameMsg.toLoc)]);
+        app.loadAndDrawSquare("selected_square.png", calcBoardX(gameMsg.toLoc), calcBoardY(gameMsg.toLoc));
+
     }
 
     //Load and draw the pieces
     gameMsg.lightPieces.forEach(function (obj) {
         //app.drawPiece(obj.image, calcBoardX(obj.boardLoc), calcBoardY(obj.boardLoc));
-        app.loadAndDrawImg(obj.image, calcBoardX(obj.boardLoc), calcBoardY(obj.boardLoc));
         pieces.push([obj.image, calcBoardX(obj.boardLoc), calcBoardY(obj.boardLoc), obj.boardLoc]);
+        app.loadAndDrawImg(obj.image, calcBoardX(obj.boardLoc), calcBoardY(obj.boardLoc));
     });
 
     gameMsg.darkPieces.forEach(function (obj) {
@@ -385,8 +395,6 @@ function updateBoard_piece(gameMsg) {
         app.loadAndDrawImg(obj.image, calcBoardX(obj.boardLoc), calcBoardY(obj.boardLoc));
         pieces.push([obj.image, calcBoardX(obj.boardLoc), calcBoardY(obj.boardLoc), obj.boardLoc]);
     });
-
-
 }
 
 /**
@@ -541,6 +549,24 @@ function mouseMoveUpdateCanvas(timestamp) {
     });
 }
 
+function resetPiecePositions() {
+    //mouseMoveInterval = mouseDelaySetting;
+    //Re-draw the board, squares, and pieces
+    app.clear();
+    app.drawBoard();
+
+    let j = 0;
+    squares.forEach(function (obj) {
+        app.drawSquareOnly(squareImages[j++], obj[1], obj[2]);
+        //app.drawSquare(obj[0], obj[1], obj[2]);
+    });
+
+    let i = 0;
+    pieces.forEach(function (obj) {
+        app.drawImgOnly(pieceImages[i++], obj[1], obj[2])
+    });
+}
+
 /**
  * Function to send the selected move to the model.
  * Note that reportClick() will only allow the moveOrigin and mostDest
@@ -602,6 +628,8 @@ function clearMove() {
 
         let log = document.querySelector(".scrollBox p:nth-last-child(1)");
         log.remove();
+
+        resetPiecePositions();  //reset the drawing of the piece positions.
     }
 }
 
