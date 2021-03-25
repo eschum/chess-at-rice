@@ -56,12 +56,74 @@ function createApp(canvas) {
     }
 
     let drawSquare = function(imageStr, x, y) {
+        console.log("x: " + x);
+        console.log("y: " + y);
         let newImg = new Image();
         newImg.src = imageStr;
         let halfSide = spaceLen / 2;
 
+        let xCoord, yCoord;
+
+        switch (x) {
+            case 30:
+                xCoord = 3;
+                break;
+            case 90:
+                xCoord = 62;
+                break;
+            case 150:
+                xCoord = 122;
+                break;
+            case 210:
+                xCoord = 181;
+                break;
+            case 270:
+                xCoord = 240;
+                break;
+            case 330:
+                xCoord = 299;
+                break;
+            case 390:
+                xCoord = 359;
+                break;
+            case 450:
+                xCoord = 418;
+                break;
+            default:
+                break;
+        }
+
+        switch (y) {
+            case 30:
+                yCoord = 3;
+                break;
+            case 90:
+                yCoord = 62;
+                break;
+            case 150:
+                yCoord = 122;
+                break;
+            case 210:
+                yCoord = 181;
+                break;
+            case 270:
+                yCoord = 240;
+                break;
+            case 330:
+                yCoord = 299;
+                break;
+            case 390:
+                yCoord = 359;
+                break;
+            case 450:
+                yCoord = 418;
+                break;
+            default:
+                break;
+        }
+
         newImg.onload = function() {
-            c.drawImage(newImg, 2 + x - halfSide - 0.5 * x / 60, 2 + y - halfSide - 0.5 * y / 30);
+            c.drawImage(newImg, xCoord, yCoord);
         }
     }
 
@@ -88,13 +150,79 @@ function createApp(canvas) {
      * @param x
      * @param y
      */
-    let loadAndDrawSquare = function(imageStr, x, y, ) {
+    let loadAndDrawSquare = function(imageStr, x, y) {
+        console.log("x: " + x);
+        console.log("y: " + x);
+
         let newImg = new Image();
         newImg.src = imageStr;
         let halfSide = 30;
 
-        newImg.onload = async function() {
-            c.drawImage(newImg, 2 + x - halfSide - 0.5 * x / 60, 2 + y - halfSide- 0.5 * y / 60);
+        let xCoord, yCoord;
+
+        switch (x) {
+            case 30:
+                xCoord = 3;
+                break;
+            case 90:
+                xCoord = 62;
+                break;
+            case 150:
+                xCoord = 122;
+                break;
+            case 210:
+                xCoord = 181;
+                break;
+            case 270:
+                xCoord = 240;
+                break;
+            case 330:
+                xCoord = 299;
+                break;
+            case 390:
+                xCoord = 359;
+                break;
+            case 450:
+                xCoord = 418;
+                break;
+            default:
+                break;
+        }
+
+        switch (y) {
+            case 30:
+                yCoord = 3;
+                break;
+            case 90:
+                yCoord = 62;
+                break;
+            case 150:
+                yCoord = 122;
+                break;
+            case 210:
+                yCoord = 181;
+                break;
+            case 270:
+                yCoord = 240;
+                break;
+            case 330:
+                yCoord = 299;
+                break;
+            case 390:
+                yCoord = 359;
+                break;
+            case 450:
+                yCoord = 418;
+                break;
+            default:
+                break;
+        }
+
+        //2 + x - halfSide - 0.5 * x / 60
+        //2 + y - halfSide- 0.5 * y / 60
+
+        newImg.onload = function() {
+            c.drawImage(newImg, xCoord, yCoord);
         }
 
         squareImages.push(newImg);
@@ -103,7 +231,70 @@ function createApp(canvas) {
 
     let drawSquareOnly = function(Img, x, y) {
         let halfSide = spaceLen / 2;
-        c.drawImage(Img, x - halfSide, y - halfSide);
+
+        let xCoord, yCoord;
+
+        switch (x) {
+            case 30:
+                xCoord = 3;
+                break;
+            case 90:
+                xCoord = 62;
+                break;
+            case 150:
+                xCoord = 122;
+                break;
+            case 210:
+                xCoord = 181;
+                break;
+            case 270:
+                xCoord = 240;
+                break;
+            case 330:
+                xCoord = 299;
+                break;
+            case 390:
+                xCoord = 359;
+                break;
+            case 450:
+                xCoord = 418;
+                break;
+            default:
+                break;
+        }
+
+        switch (y) {
+            case 30:
+                yCoord = 3;
+                break;
+            case 90:
+                yCoord = 62;
+                break;
+            case 150:
+                yCoord = 122;
+                break;
+            case 210:
+                yCoord = 181;
+                break;
+            case 270:
+                yCoord = 240;
+                break;
+            case 330:
+                yCoord = 299;
+                break;
+            case 390:
+                yCoord = 359;
+                break;
+            case 450:
+                yCoord = 418;
+                break;
+            default:
+                break;
+        }
+
+        //x - halfSide
+        //y - halfSide
+        c.drawImage(Img, xCoord, yCoord);
     }
 
 
