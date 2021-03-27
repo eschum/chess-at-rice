@@ -324,6 +324,8 @@ function createApp(canvas) {
 window.onload = function() {
     app = createApp(document.querySelector("canvas"));
 
+    //If deploying, need wss instead of ws.
+    //If testing on localhost, use ws.
     socket = new WebSocket("ws://" + location.hostname + ":" + location.port +
         "/chess");
     socket.addEventListener('message', function (event) {
@@ -402,12 +404,16 @@ function onMessage(msg) {
             isDarkPlayer = obj.darkPlayer;
             isSpectator = obj.spectator;
             lightPlayerTurn = obj.lightPlayerTurn;
+            document.getElementById("turn-banner").innerHTML =
+                "It is <b>" + obj.turnName + "'s</b> turn";
             updateBoard_piece(obj);
             break;
         case "update_game":
             addUpdateToLog(obj.move);  //Add the update to the log before switching players.
             console.log(obj.move);
             lightPlayerTurn = obj.lightPlayerTurn;
+            document.getElementById("turn-banner").innerHTML =
+                "It is <b>" + obj.turnName + "'s</b> turn";
             updateBoard_piece(obj);
             break;
         case "chat":
@@ -520,6 +526,9 @@ function onConnect(event) {
     let msgJSON = {type: "join", username: username, role: role };
     let msg = JSON.stringify(msgJSON);
     socket.send(msg);
+
+    let banner = document.getElementById("connected-banner");
+    banner.innerHTML = "Connected as <b>" + username + "</b>";
 }
 
 /**

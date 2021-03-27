@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import edu.rice.comp610.model.DispatchAdapter;
 import edu.rice.comp610.model.authentication.IAuthenticate;
 import edu.rice.comp610.model.authentication.SimpleAuthenticator;
-
 import static spark.Spark.*;
 
 

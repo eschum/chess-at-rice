@@ -238,6 +238,7 @@ public class Game {
         pcs.addPropertyChangeListener("broadcast", p);
     }
 
+
     /**
      * Method: Connect Spectator
      * Send messages to all entities in the game when the spectator joins.
@@ -248,7 +249,10 @@ public class Game {
         broadcastMessage(p.getSpectatorJoin());
 
         //Give the spectator a manual update of the board status.
-        Message update = new UpdateGame(lightPieces, darkPieces, lightPlayerTurn, "void", null, null);
+        //Send who's turn it is now.
+        String playerTurn = lightPlayerTurn ? lightPlayer.getName() : darkPlayer.getName();
+        Message update = new UpdateGame(lightPieces, darkPieces, lightPlayerTurn, "void",
+                null, null, playerTurn);
         try {
             p.getSession().getRemote().sendString(gson.toJson(update));
         } catch (IOException e) {
@@ -348,8 +352,9 @@ public class Game {
      */
     public void sendUpdateMessage(String move, String fromLoc, String toLoc) {
         lightPlayerTurn = !lightPlayerTurn;
+        String nextTurnName = lightPlayerTurn ? lightPlayer.getName() : darkPlayer.getName();
         Message update = new UpdateGame(lightPieces, darkPieces, lightPlayerTurn, move,
-                fromLoc, toLoc);
+                fromLoc, toLoc, nextTurnName);
 
         //Send the message to all entities.
         broadcastMessage(update);

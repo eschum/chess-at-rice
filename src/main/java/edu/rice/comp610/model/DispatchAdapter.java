@@ -243,9 +243,11 @@ public class DispatchAdapter {
 
                     //Send start game message to both players, with proper permissions.
                     lightPlayer.getSession().getRemote()
-                            .sendString(gson.toJson(sendStartMsg(game, true, false, false)));
+                            .sendString(gson.toJson(sendStartMsg(game, true, false,
+                                    false, lightPlayer)));
                     darkPlayer.getSession().getRemote()
-                            .sendString(gson.toJson(sendStartMsg(game, false, true, false)));
+                            .sendString(gson.toJson(sendStartMsg(game, false, true,
+                                    false, lightPlayer)));
                 } catch (IOException e) {
                     System.out.println("IO Exception");
                 }
@@ -267,9 +269,9 @@ public class DispatchAdapter {
      * @return A StartGame message with the appropriate fields configured.
      */
     private StartGame sendStartMsg(Game game, boolean lightPlayer, boolean darkPlayer,
-                                   boolean spectator) {
+                                   boolean spectator, Player currTurnPlayer) {
         return new StartGame(game.getLightPieces(), game.getDarkPieces(),
-                lightPlayer, darkPlayer, spectator);
+                lightPlayer, darkPlayer, spectator, currTurnPlayer);
     }
 
     /**

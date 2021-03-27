@@ -3,10 +3,10 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>edu.rice.comp610</groupId>
-    <artifactId>eds6-hw5-collision-world</artifactId>
+    <artifactId>chess-at-rice</artifactId>
     <packaging>jar</packaging>
     <version>1.0-SNAPSHOT</version>
-    <name>eds6-hw5-collision-world</name>
+    <name>chess-at-rice</name>
     <url>http://maven.apache.org</url>
 
     <properties>
@@ -115,7 +115,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>edu.rice.comp610.controller.BallWorldController</mainClass>
+                            <mainClass>edu.rice.comp610.controller.ChessSocketController</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -127,11 +127,11 @@
                 <configuration>
                     <jdkVersion>${jdk.version}</jdkVersion>
                     <!-- Use your own application name -->
-                    <appName>eds6-hw5-collision-world</appName>
+                    <appName>chess-at-rice</appName>
                     <processTypes>
                         <!-- Tell Heroku how to launch your application -->
                         <!-- You might have to remove the ./ in front   -->
-                        <web>java -jar target/eds6-hw5-collision-world-1.0-SNAPSHOT-jar-with-dependencies.jar</web>
+                        <web>java -jar target/chess-at-rice-1.0-SNAPSHOT-jar-with-dependencies.jar</web>
                     </processTypes>
                 </configuration>
             </plugin>

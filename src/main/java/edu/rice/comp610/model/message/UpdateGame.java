@@ -14,6 +14,7 @@ public class UpdateGame extends Message {
     private final String move;
     private final String fromLoc;
     private final String toLoc;
+    private final String turnName;
 
 
     /**
@@ -25,7 +26,7 @@ public class UpdateGame extends Message {
      *             newly-joining spectator)
      */
     public UpdateGame(ArrayList<Piece> light, ArrayList<Piece> dark, boolean lightTurn, String move,
-                      String fromLoc, String toLoc) {
+                      String fromLoc, String toLoc, String nextTurnName) {
         type = "update_game";
         lightPieces = light;
         darkPieces = dark;
@@ -33,5 +34,6 @@ public class UpdateGame extends Message {
         this.move = move;
         this.fromLoc = fromLoc;
         this.toLoc = toLoc;
+        this.turnName = nextTurnName;
     }
 }

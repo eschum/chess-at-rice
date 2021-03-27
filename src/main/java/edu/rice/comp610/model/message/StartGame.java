@@ -1,5 +1,6 @@
 package edu.rice.comp610.model.message;
 
+import edu.rice.comp610.model.game.Player;
 import edu.rice.comp610.model.piece.Piece;
 import java.util.ArrayList;
 
@@ -14,6 +15,7 @@ public class StartGame extends Message {
     private final boolean darkPlayer;
     private final boolean spectator;
     private final boolean lightPlayerTurn;
+    private final String turnName;
 
     /**
      * Public Constructor. Initialize all state to be sent to the view.
@@ -23,7 +25,8 @@ public class StartGame extends Message {
      * @param p2 boolean whether this player is darkPlayer.
      * @param spectator boolean whether or not this player is a spectator.
      */
-    public StartGame(ArrayList<Piece> light, ArrayList<Piece> dark, boolean p1, boolean p2, boolean spectator) {
+    public StartGame(ArrayList<Piece> light, ArrayList<Piece> dark, boolean p1,
+                     boolean p2, boolean spectator, Player currTurnPlayer) {
         type = "start_game";
         lightPlayer = p1;
         darkPlayer = p2;
@@ -31,5 +34,6 @@ public class StartGame extends Message {
         lightPieces = light;
         darkPieces = dark;
         lightPlayerTurn = true;
+        this.turnName = currTurnPlayer.getName();
     }
 }
