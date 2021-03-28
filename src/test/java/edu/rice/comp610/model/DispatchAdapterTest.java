@@ -1,13 +1,100 @@
 package edu.rice.comp610.model;
 
 
+import com.google.gson.JsonObject;
+import edu.rice.comp610.model.authentication.IAuthenticate;
+import edu.rice.comp610.model.authentication.SimpleAuthenticator;
+import edu.rice.comp610.model.game.Game;
+import edu.rice.comp610.model.game.Player;
+import edu.rice.comp610.model.validation.IValidateMove;
+import edu.rice.comp610.model.validation.SimpleMoveValidator;
 import junit.framework.TestCase;
+import org.apache.commons.lang3.tuple.Pair;
+import org.junit.jupiter.api.DisplayNameGenerator;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
+
+import java.util.ArrayList;
 
 /**
  * Dispatch Adapter Test
  * Unit Tests for Template Ball World.
  */
-//public class DispatchAdapterTest extends TestCase {
+public class DispatchAdapterTest extends TestCase {
+
+    @Spy
+    Game testGame = new Game("test game");
+
+    @Spy
+    Player p1 = new Player("test_player_1", null);
+
+    @Spy
+    Player p2 = new Player("test_player_2", null);
+
+
+    public void testChessModel() {
+        MockitoAnnotations.initMocks(this);
+        assertEquals("Math", 1, 1);
+
+        DispatchAdapter da = new DispatchAdapter();
+
+        da.addNewGame("testGame2");
+
+        testGame.addPlayer(p1);
+        testGame.addPlayer(p2);
+
+        assertEquals("lightPlayer assignment", true, testGame.getLightPlayer() == p1);
+
+        ArrayList<JsonObject> collectGames = da.getAllGames();
+
+        Player getSender = da.getSendingPlayer(null);
+    }
+
+    /**
+     * Method: Test Simple Authenticator
+     * Test cases to test the simple Authenticator.
+     */
+    public void testSimpleAuthenticator() {
+        IAuthenticate simpAuth = SimpleAuthenticator.getInstance();
+
+        JsonObject credCheck = simpAuth.validateCredentials("eric", "ricestudent");
+        JsonObject expectedResponse = new JsonObject();
+        expectedResponse.addProperty("auth", "true");
+        assertEquals("valid login - eric", expectedResponse, credCheck);
+
+        credCheck = simpAuth.validateCredentials("bogus", "credentials");
+        expectedResponse.remove("auth");
+        expectedResponse.addProperty("auth", "false");
+        assertEquals("invalid login", expectedResponse, credCheck);
+    }
+
+
+    public void testSimpleMoveValidator() {
+        IValidateMove valMove = SimpleMoveValidator.getInstance();
+
+        Game anotherTestGame = new Game("another test game");
+        anotherTestGame.addPlayer(p1);
+        anotherTestGame.addPlayer(p2);
+
+        //Test for no piece being selected.
+        Pair<Integer, String> retVal = valMove.checkIfLegal("a4", "b4", p1, anotherTestGame);
+        System.out.print(retVal);
+
+        //Test selecting other team's piece.
+        Pair<Integer, String> retVal2 = valMove.checkIfLegal("a8", "a1", p1, testGame);
+        System.out.print(retVal2);
+
+        //Move onto square occupied by own piece.
+        Pair<Integer, String> retVal3 = valMove.checkIfLegal("a1", "a1", p1, anotherTestGame);
+        System.out.print(retVal3);
+
+        //Move onto valid square.
+
+    }
+
+
+
+
 //   //Instantiate mock and spy ball objects.
 //    private DispatchAdapter da;
 //    private PropertyChangeSupport pcs;
@@ -440,4 +527,4 @@ import junit.framework.TestCase;
 //        da.addListener(ballSpy2);
 //        da.addListener(fishSpy2);
 //    }
-//}
+}

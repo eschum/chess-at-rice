@@ -29,8 +29,9 @@ public class DispatchAdapter {
      * @param userSession The session in question
      * @return The Player object associated with the session.
      */
-    private Player getSendingPlayer(Session userSession) {
+    public Player getSendingPlayer(Session userSession) {
         Game game = allSessions.get(userSession);
+        if (game == null) return null;
         return game.getPlayerFromSession(userSession);
     }
 
