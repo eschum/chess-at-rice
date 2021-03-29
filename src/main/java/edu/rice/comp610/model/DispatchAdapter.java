@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-
 /**
  * This adapter interfaces with the view (paint objects) and the controller.
  */
@@ -34,7 +33,6 @@ public class DispatchAdapter {
         if (game == null) return null;
         return game.getPlayerFromSession(userSession);
     }
-
 
     /**
      * Constructor call.
@@ -201,13 +199,23 @@ public class DispatchAdapter {
     }
 
     /**
+     * Method: Get Game From Session
+     *
+     * @param userSession
+     * @return
+     */
+    public Game getGameFromSession(Session userSession) {
+        return allSessions.get(userSession);
+    }
+
+    /**
      * Method: Connect User.
      * Takes action when the join message is received from the view/client
      * @param userSession - session of the current connection from which a message was received
      * @param username - user name string of the user in this connection.
      * @param role - string of the role (lightPlayer, darkPlayer, or spectator)
      */
-    private void connectUser(Session userSession, String username, String role) {
+    public void connectUser(Session userSession, String username, String role) {
         Player player = allPlayers.get(username);
         Game game = allPlayersToGames.get(username);
 

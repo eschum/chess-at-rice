@@ -1,7 +1,9 @@
 package edu.rice.comp610.model;
 
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.heroku.api.parser.Json;
 import edu.rice.comp610.model.authentication.IAuthenticate;
 import edu.rice.comp610.model.authentication.SimpleAuthenticator;
 import edu.rice.comp610.model.game.Game;
@@ -10,7 +12,11 @@ import edu.rice.comp610.model.validation.IValidateMove;
 import edu.rice.comp610.model.validation.SimpleMoveValidator;
 import junit.framework.TestCase;
 import org.apache.commons.lang3.tuple.Pair;
+import org.eclipse.jetty.websocket.api.RemoteEndpoint;
+import org.eclipse.jetty.websocket.api.Session;
 import org.junit.jupiter.api.DisplayNameGenerator;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
@@ -31,18 +37,72 @@ public class DispatchAdapterTest extends TestCase {
     @Spy
     Player p2 = new Player("test_player_2", null);
 
+    @Mock
+    Session sess_p1;
+
+    @Mock
+    Session sess_p2;
+
 
     public void testChessModel() {
         MockitoAnnotations.initMocks(this);
         assertEquals("Math", 1, 1);
 
         DispatchAdapter da = new DispatchAdapter();
+        Gson gson = new Gson();
 
-        da.addNewGame("testGame2");
+        /*
+        Test DispatchAdapter Creation, Joining, and Connecting users.
+         */
+        String user1 = "test_user_1";
+        String user2 = "test_user_2";
+        String user3 = "test_user_3";
+        //Create/join the game - from the lobby
+        da.addNewGame(user1);  //Will create the game as "Game0" and create lightPlayer
+        assertEquals("darkPlayer join", "darkPlayer", da.joinGame(user2, "Game0"));  //Will create darkPlayer
+        assertEquals("spectator join", "spectator", da.joinGame(user3, "Game0"));
 
+        /*
+        Mock the sessions (and endpoints).
+         */
+        Session test_sess_1 = Mockito.mock(Session.class);
+        RemoteEndpoint endpoint_1 = Mockito.mock(RemoteEndpoint.class);
+        Mockito.when(test_sess_1.getRemote()).thenReturn(endpoint_1);
+
+        Session test_sess_2 = Mockito.mock(Session.class);
+        RemoteEndpoint endpoint_2 = Mockito.mock(RemoteEndpoint.class);
+        Mockito.when(test_sess_2.getRemote()).thenReturn(endpoint_2);
+
+        Session test_sess_3 = Mockito.mock(Session.class);
+        RemoteEndpoint endpoint_3 = Mockito.mock(RemoteEndpoint.class);
+        Mockito.when(test_sess_3.getRemote()).thenReturn(endpoint_2);
+
+        /*
+        Test user Connection - lightPlayer, darkPlayer, and spectator.
+         */
+        //da.connectUser(test_sess_1, user1, "lightPlayer");
+        //da.connectUser(test_sess_2, user2, "darkPlayer");
+        //da.connectUser(test_sess_3, user3, "spectator");
+
+
+        /*
+        Test messaging responses
+         */
+        JsonObject msg = new JsonObject();
+        msg.addProperty("type", "join");
+        msg.addProperty("username", user1);
+        msg.addProperty("role", "lightPlayer");
+        da.processMessage(test_sess_1, gson.toJson(msg));
+
+
+
+
+        /*
+        Miscellaneous remaining test
+         */
+        //Test addPlayer() on our Spy Game.
         testGame.addPlayer(p1);
         testGame.addPlayer(p2);
-
         assertEquals("lightPlayer assignment", true, testGame.getLightPlayer() == p1);
 
         ArrayList<JsonObject> collectGames = da.getAllGames();

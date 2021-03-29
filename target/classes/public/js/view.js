@@ -5,6 +5,7 @@ let socket;
 
 //Global variables re: chess board size.
 let boardImgFile = "chessboard-480-rice.png";
+let boardImgFileDarkPerspective = "chessboard-480-rice-dark.png";
 let boardSide = 480;
 let spaceLen = boardSide / 8;
 let mouseDelaySetting = 3;
@@ -36,11 +37,21 @@ let username;
 function createApp(canvas) {
     let c = canvas.getContext("2d");
     let boardImg = new Image();
-    boardImg.src = boardImgFile;
-
-
+    let role = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('role='))
+        .split('=')[1];
+    if (role === "darkPlayer")
+        boardImg.src = boardImgFileDarkPerspective;
+    else
+        boardImg.src = boardImgFile;
+    /**
+     * Function: Draw Board
+     * Draw the image of the chess board at the top left of the canvas.
+     * Include a check to set the img src attribute, in case we need to invert the board.
+     */
     let drawBoard = function() {
-        c.drawImage(boardImg, 0, 0, boardSide, boardSide);
+        c.drawImage(boardImg, 0, 0, 500, 500);
     }
 
     let drawPiece = function(imageStr, x, y) {

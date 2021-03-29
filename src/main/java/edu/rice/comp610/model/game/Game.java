@@ -366,16 +366,6 @@ public class Game {
      */
     public void broadcastMessage(Message msg) {
         pcs.firePropertyChange("broadcast", null, gson.toJson(msg));
-
-
-//        for (Map.Entry mapElement : entities.entrySet()) {
-//            Session currSession = (Session) mapElement.getKey();
-//            try {
-//                currSession.getRemote().sendString(gson.toJson(msg));
-//            } catch (IOException e) {
-//                System.out.println("IO Exception");
-//            }
-//        }
     }
 
     /**
