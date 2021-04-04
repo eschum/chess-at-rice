@@ -176,7 +176,7 @@ public class Game {
         Figure out the opposite player, and send the confirm_draw_request message
          */
         Player p = getPlayerFromSession(userSession);
-        Player otherPlayer = p == lightPlayer ? darkPlayer : lightPlayer;
+        Player otherPlayer = (p == lightPlayer) ? darkPlayer : lightPlayer;
 
         //Send the draw request to the other player
         try {

@@ -99,8 +99,6 @@ public class SimpleMoveValidator implements IValidateMove{
      * @return true if the piece is of the same player, false if not.
      */
     boolean isSelectedPieceCorrectTeam(Piece selectedPiece, Game game, Player player) {
-        System.out.print(game.getLightPlayer() == player);
-        System.out.print(selectedPiece.getTeam() == 0);
         return (game.getLightPlayer() == player && selectedPiece.getTeam() == 0) ||
                 (game.getDarkPlayer() == player && selectedPiece.getTeam() == 1);
     }

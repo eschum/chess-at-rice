@@ -7,7 +7,6 @@ import edu.rice.comp610.model.authentication.IAuthenticate;
 import edu.rice.comp610.model.authentication.SimpleAuthenticator;
 import static spark.Spark.*;
 
-
 /**
  * The paint world controller creates the adapter(s) that communicate with the view.
  * The controller responds to requests from the view after contacting the adapter(s).

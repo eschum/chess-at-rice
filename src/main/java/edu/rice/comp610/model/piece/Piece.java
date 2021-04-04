@@ -43,12 +43,19 @@ public abstract class Piece {
 
     /**
      * Method: Set Image
-     * Accessor method to set the image string.
+     * Mutator method to set the image string.
      * @param img String that stores the file location for the piece.
      */
     public void setImage(String img) {
         this.image = img;
     }
+
+    /**
+     * Method: Get Image
+     * Accessor method to access the image string.
+     * @return String describing the piece image.
+     */
+    public String getImage() { return this.image;}
 
     /**
      * Accessor method to return the team of the piece.

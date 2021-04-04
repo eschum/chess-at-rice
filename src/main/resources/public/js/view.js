@@ -874,7 +874,8 @@ function sendHeartBeat () {
  */
 function requestResign () {
     if (!trueIfTurn()) return;
-    sendMessage("request_resign")
+    sendMessage("request_resign");
+    return;
 }
 
 /**
@@ -886,7 +887,8 @@ function requestResign () {
  */
 function requestDraw() {
     if (!trueIfTurn()) return;
-    sendMessage("request_draw")
+    sendMessage("request_draw");
+    return;
 }
 
 /**

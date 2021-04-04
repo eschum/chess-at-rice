@@ -27,4 +27,11 @@ public class PlayerJoin extends Message {
         name = n;
     }
 
+    /**
+     * Method: Get Name
+     * Accessor method to return the name of the player that is joining.
+     * @return String of a name.
+     */
+    public String getName() { return this.name; }
+
 }

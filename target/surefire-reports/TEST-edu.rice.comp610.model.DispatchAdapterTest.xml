@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="edu.rice.comp610.model.DispatchAdapterTest" time="0.593" tests="3" errors="0" skipped="0" failures="0">
+<testsuite name="edu.rice.comp610.model.DispatchAdapterTest" time="0.816" tests="3" errors="0" skipped="0" failures="0">
   <properties>
-    <property name="idea.version" value="2020.3.1"/>
+    <property name="idea.version" value="2020.3.3"/>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property name="java.vm.version" value="15.0.1+9-18"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk-15.0.1\bin"/>
@@ -28,7 +28,7 @@
     <property name="maven.ext.class.path" value="C:\Program Files\JetBrains\IntelliJ IDEA 2020.3.1\plugins\maven\lib\maven-event-listener.jar"/>
     <property name="classworlds.conf" value="C:\Program Files\JetBrains\IntelliJ IDEA 2020.3.1\plugins\maven\lib\maven3\bin\m2.conf"/>
     <property name="sun.jnu.encoding" value="Cp1252"/>
-    <property name="java.library.path" value="C:\Program Files\Java\jdk-15.0.1\bin;C:\WINDOWS\Sun\Java\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\Program Files\Common Files\Oracle\Java\javapath;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\Microsoft VS Code\bin;C:\Users\erics\Anaconda3\Library\bin;C:\Program Files\PuTTY\;C:\Program Files\nodejs\;C:\Program Files\Git\cmd;C:\Program Files\Amazon\AWSCLI\bin\;C:\Program Files\Racket\;C:\Ruby27\bin;C:\Users\erics\Anaconda3;C:\Users\erics\Anaconda3\Library\mingw-w64\bin;C:\Users\erics\Anaconda3\Library\usr\bin;C:\Users\erics\Anaconda3\Scripts;C:\Users\erics\AppData\Local\Microsoft\WindowsApps;C:\Program Files\Java\jdk-11.0.1\bin;C:\Program Files\JetBrains\PyCharm 2019.2.1\bin;C:\Users\erics\AppData\Roaming\npm;C:\Users\erics\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\erics\AppData\roaming\Python\Python37\scripts;C:\Program Files (x86)\Nmap;C:\Program Files\heroku\bin;."/>
+    <property name="java.library.path" value="C:\Program Files\Java\jdk-15.0.1\bin;C:\WINDOWS\Sun\Java\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\Program Files\Common Files\Oracle\Java\javapath;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\Microsoft VS Code\bin;C:\Users\erics\Anaconda3\Library\bin;C:\Program Files\PuTTY\;C:\Program Files\nodejs\;C:\Program Files\Git\cmd;C:\Program Files\Amazon\AWSCLI\bin\;C:\Program Files\Racket\;C:\Ruby27\bin;C:\Users\erics\Anaconda3;C:\Users\erics\Anaconda3\Library\mingw-w64\bin;C:\Users\erics\Anaconda3\Library\usr\bin;C:\Users\erics\Anaconda3\Library\bin;C:\Users\erics\Anaconda3\Scripts;C:\Users\erics\AppData\Local\Microsoft\WindowsApps;C:\Program Files\Java\jdk-11.0.1\bin;C:\Program Files\JetBrains\PyCharm 2019.2.1\bin;;C:\Users\erics\AppData\Roaming\npm;C:\Users\erics\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\erics\AppData\roaming\Python\Python37\scripts;C:\Program Files (x86)\Nmap;C:\Program Files\heroku\bin;."/>
     <property name="maven.conf" value="C:\Program Files\JetBrains\IntelliJ IDEA 2020.3.1\plugins\maven\lib\maven3/conf"/>
     <property name="jdk.debug" value="release"/>
     <property name="java.class.version" value="59.0"/>
@@ -43,7 +43,7 @@
     <property name="java.class.path" value="C:\Program Files\JetBrains\IntelliJ IDEA 2020.3.1\plugins\maven\lib\maven3\boot\plexus-classworlds-2.6.0.jar;C:\Program Files\JetBrains\IntelliJ IDEA 2020.3.1\plugins\maven\lib\maven3\boot\plexus-classworlds.license"/>
     <property name="java.vm.specification.version" value="15"/>
     <property name="sun.arch.data.model" value="64"/>
-    <property name="sun.java.command" value="org.codehaus.classworlds.Launcher -Didea.version=2020.3.1 heroku:deploy"/>
+    <property name="sun.java.command" value="org.codehaus.classworlds.Launcher -Didea.version=2020.3.3 heroku:deploy"/>
     <property name="java.home" value="C:\Program Files\Java\jdk-15.0.1"/>
     <property name="user.language" value="en"/>
     <property name="java.specification.vendor" value="Oracle Corporation"/>
@@ -58,7 +58,7 @@
     <property name="sun.cpu.endian" value="little"/>
     <property name="sun.cpu.isalist" value="amd64"/>
   </properties>
-  <testcase name="testSimpleMoveValidator" classname="edu.rice.comp610.model.DispatchAdapterTest" time="0.016"/>
-  <testcase name="testChessModel" classname="edu.rice.comp610.model.DispatchAdapterTest" time="0.577"/>
-  <testcase name="testSimpleAuthenticator" classname="edu.rice.comp610.model.DispatchAdapterTest" time="0"/>
+  <testcase name="testSimpleMoveValidator" classname="edu.rice.comp610.model.DispatchAdapterTest" time="0.007"/>
+  <testcase name="testChessModel" classname="edu.rice.comp610.model.DispatchAdapterTest" time="0.807"/>
+  <testcase name="testSimpleAuthenticator" classname="edu.rice.comp610.model.DispatchAdapterTest" time="0.002"/>
 </testsuite>

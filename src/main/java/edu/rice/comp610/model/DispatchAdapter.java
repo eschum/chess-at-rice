@@ -164,6 +164,7 @@ public class DispatchAdapter {
             case "request_draw" -> {
                 System.out.print("User requested a draw\n");
                 allSessions.get(userSession).sendDrawRequest(userSession);
+                break;
             }
             case "request_resign" -> {
                 System.out.print("User requested a resignation\n");

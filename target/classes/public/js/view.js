@@ -337,7 +337,7 @@ window.onload = function() {
 
     //If deploying, need wss instead of ws.
     //If testing on localhost, use ws.
-    socket = new WebSocket("ws://" + location.hostname + ":" + location.port +
+    socket = new WebSocket("wss://" + location.hostname + ":" + location.port +
         "/chess");
     socket.addEventListener('message', function (event) {
         onMessage(event);
@@ -874,7 +874,8 @@ function sendHeartBeat () {
  */
 function requestResign () {
     if (!trueIfTurn()) return;
-    sendMessage("request_resign")
+    sendMessage("request_resign");
+    return;
 }
 
 /**
@@ -886,7 +887,8 @@ function requestResign () {
  */
 function requestDraw() {
     if (!trueIfTurn()) return;
-    sendMessage("request_draw")
+    sendMessage("request_draw");
+    return;
 }
 
 /**
