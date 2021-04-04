@@ -12,7 +12,7 @@ public class PlayerJoin extends Message {
     /**
      * Public Constructor
      * Set the message
-     * @param p
+     * @param p A Player object.
      */
     public PlayerJoin(Player p) {
         setType("player_join");
@@ -21,7 +21,7 @@ public class PlayerJoin extends Message {
 
     /**
      * Set Name: Helper function to set the name of the player.
-     * @param n
+     * @param n A string of the name of the player.
      */
     public void setName(String n) {
         name = n;

@@ -1,14 +1,11 @@
 package edu.rice.comp610.model;
 
-
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.heroku.api.parser.Json;
 import edu.rice.comp610.model.authentication.IAuthenticate;
 import edu.rice.comp610.model.authentication.SimpleAuthenticator;
 import edu.rice.comp610.model.game.Game;
 import edu.rice.comp610.model.game.Player;
-import edu.rice.comp610.model.message.Message;
 import edu.rice.comp610.model.message.PlayerJoin;
 import edu.rice.comp610.model.validation.IValidateMove;
 import edu.rice.comp610.model.validation.SimpleMoveValidator;
@@ -16,17 +13,16 @@ import junit.framework.TestCase;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
-import org.junit.jupiter.api.DisplayNameGenerator;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-
 import java.util.ArrayList;
 
 /**
- * Dispatch Adapter Test
+ * Class: Dispatch Adapter Test
  * Unit Tests for Template Ball World.
+ * Using Mockito spy and mock.
  */
 public class DispatchAdapterTest extends TestCase {
 
@@ -45,6 +41,10 @@ public class DispatchAdapterTest extends TestCase {
     @Mock
     Session sess_p2;
 
+    /**
+     * Method: Test Chess Model
+     * Test Various Components of the Chess@Rice Data model
+     */
     public void testChessModel() {
         MockitoAnnotations.initMocks(this);
 
@@ -222,7 +222,6 @@ public class DispatchAdapterTest extends TestCase {
         //the game
         assertEquals("lightPlayer still connected", gameCheck, da.getGameFromSession(test_sess_1));
         assertEquals("darkPlayer still connected", gameCheck, da.getGameFromSession(test_sess_2));
-
 
         /*
         Player leave - through lightPlayer agreeing to a draw.
@@ -407,7 +406,11 @@ public class DispatchAdapterTest extends TestCase {
         assertEquals("invalid login", expectedResponse, credCheck);
     }
 
-
+    /**
+     * Method: Test Simple Move Validator
+     * Test the SimpleMoveValidator class by making some moves and asserting they have been
+     * handled correctly.
+     */
     public void testSimpleMoveValidator() {
         IValidateMove valMove = SimpleMoveValidator.getInstance();
 

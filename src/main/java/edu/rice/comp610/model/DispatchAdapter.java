@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Class: Dispatch Adapter
  * This adapter interfaces with the view (paint objects) and the controller.
  */
 public class DispatchAdapter {
@@ -164,7 +165,6 @@ public class DispatchAdapter {
             case "request_draw" -> {
                 System.out.print("User requested a draw\n");
                 allSessions.get(userSession).sendDrawRequest(userSession);
-                break;
             }
             case "request_resign" -> {
                 System.out.print("User requested a resignation\n");
@@ -201,9 +201,9 @@ public class DispatchAdapter {
 
     /**
      * Method: Get Game From Session
-     *
-     * @param userSession
-     * @return
+     * Return the Game object to which the Session is associated
+     * @param userSession A Session object of interest
+     * @return The Game object associated with the Session provided as an argument to the method.
      */
     public Game getGameFromSession(Session userSession) {
         return allSessions.get(userSession);

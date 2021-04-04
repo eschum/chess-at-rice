@@ -8,8 +8,12 @@ import edu.rice.comp610.model.game.Player;
  * that a player has resigned.
  */
 public class DrawDeniedMessage extends Message {
-    private String name;
-    private String content;
+    /*
+    These parameters should not be converted to local variables because they will
+    be referenced (as fields of the class object) in the View.
+     */
+    private final String name;
+    private final String content;
 
     /**
      * Public Constructor

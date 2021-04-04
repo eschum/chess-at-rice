@@ -8,7 +8,6 @@ import java.util.ArrayList;
 /**
  * IValidateMode interface defines what behavior the validation class should have
  * that the Chess@Rice platform is using to verify whether moves are appropriate
- *
  * The Interface will be a singleton validator, so methods will accept the particular
  * game
  */

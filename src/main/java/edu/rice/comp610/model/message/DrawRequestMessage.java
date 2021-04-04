@@ -8,7 +8,7 @@ import edu.rice.comp610.model.game.Player;
  * The receiving player will either accept or deny.
  */
 public class DrawRequestMessage extends Message {
-    private String content;
+    private final String content;
 
     /**
      * Public Constructor

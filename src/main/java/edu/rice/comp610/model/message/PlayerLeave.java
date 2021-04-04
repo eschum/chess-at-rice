@@ -10,8 +10,8 @@ import edu.rice.comp610.model.game.Player;
  * the value of the alert is encoded in String content.
  */
 public class PlayerLeave extends Message {
-    private String name;
-    private String content;
+    private final String name;
+    private final String content;
 
     /**
      * Public Constructor

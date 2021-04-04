@@ -8,6 +8,10 @@ import java.util.ArrayList;
  * Encode all state to update the game state in the view.
  */
 public class UpdateGame extends Message {
+    /*
+    Cannot convert the fields to local variables because
+    they will be referenced in the View.
+     */
     private final ArrayList<Piece> lightPieces;
     private final ArrayList<Piece> darkPieces;
     private final boolean lightPlayerTurn;
@@ -15,7 +19,6 @@ public class UpdateGame extends Message {
     private final String fromLoc;
     private final String toLoc;
     private final String turnName;
-
 
     /**
      * Constructor

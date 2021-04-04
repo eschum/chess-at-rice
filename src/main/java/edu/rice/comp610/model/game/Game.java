@@ -7,7 +7,6 @@ import edu.rice.comp610.model.piece.*;
 import edu.rice.comp610.model.validation.SimpleMoveValidator;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jetty.websocket.api.Session;
-
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -285,7 +284,6 @@ public class Game {
     public Piece getPieceFromPositions(String fromLoc) {
         return positions.get(fromLoc);
     }
-
 
     /**
      * Method: Process Move

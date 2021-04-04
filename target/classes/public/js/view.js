@@ -20,10 +20,10 @@ let isDarkPlayer = false;
 let moveOrigin = null;
 let moveDestination = null;
 let gameID;
-let squares = new Array();
-let pieces = new Array();
-let squareImages = new Array();
-let pieceImages = new Array();
+let squares = [];
+let pieces = [];
+let squareImages = [];
+let pieceImages = [];
 
 
 //Player Data
@@ -54,6 +54,13 @@ function createApp(canvas) {
         c.drawImage(boardImg, 0, 0, 500, 500);
     }
 
+    /**
+     * Function: Draw Piece
+     * Instantiate a new piece object and draw it.
+     * @param imageStr The String of the filename
+     * @param x The x coordinate of the center of the object
+     * @param y The Y coordinate of the center of the object.
+     */
     let drawPiece = function(imageStr, x, y) {
         let newImg = new Image();
         newImg.src = imageStr;
@@ -66,13 +73,20 @@ function createApp(canvas) {
         newImg.style.zIndex = "1";
     }
 
+    /**
+     * Function: Draw Square
+     * Instantiate a new img and draw it
+     * This function draws the chess grid box. It is careful to align the box at the exact correct
+     * X and Y pixel location for each grid interval.
+     * @param imageStr String of the image filename
+     * @param x X coordinate of the center of the image
+     * @param y Y coordinate of the center of the image.
+     */
     let drawSquare = function(imageStr, x, y) {
         console.log("x: " + x);
         console.log("y: " + y);
         let newImg = new Image();
         newImg.src = imageStr;
-        let halfSide = spaceLen / 2;
-
         let xCoord, yCoord;
 
         switch (x) {
@@ -138,6 +152,13 @@ function createApp(canvas) {
         }
     }
 
+    /**
+     * Function: Load and Draw Image.
+     * Instantiate a new img object and draw it.
+     * @param imageStr The string of the filename of the image.
+     * @param x The X coordinate of the center of the image (60 pixel box)
+     * @param y The Y coordinate of the center of the image (60 pixel box)
+     */
     let loadAndDrawImg = function(imageStr, x, y) {
         let newImg = new Image();
         newImg.src = imageStr;
@@ -150,6 +171,13 @@ function createApp(canvas) {
         pieceImages.push(newImg);
     }
 
+    /**
+     * Function: Draw Img Only.
+     * Don't instantiate a new image, just draw an image passed.
+     * @param Img An img object to draw
+     * @param x The X coordinate of center (60 pixel box)
+     * @param y The y coordinate of center (60 pixel box)
+     */
     let drawImgOnly = function(Img, x, y) {
         c.drawImage(Img, x - 30, y - 30);
     }
@@ -167,8 +195,6 @@ function createApp(canvas) {
 
         let newImg = new Image();
         newImg.src = imageStr;
-        let halfSide = 30;
-
         let xCoord, yCoord;
 
         switch (x) {
@@ -239,10 +265,14 @@ function createApp(canvas) {
         squareImages.push(newImg);
     }
 
-
+    /**
+     * Function: Draw Square Only.
+     * Similar to previous function, but don't instantiate a new img object; just draw an existing.
+     * @param Img An img object to draw.
+     * @param x The X coordinate of image center.
+     * @param y The Y coordinate of image center.
+     */
     let drawSquareOnly = function(Img, x, y) {
-        let halfSide = spaceLen / 2;
-
         let xCoord, yCoord;
 
         switch (x) {
@@ -337,7 +367,7 @@ window.onload = function() {
 
     //If deploying, need wss instead of ws.
     //If testing on localhost, use ws.
-    socket = new WebSocket("wss://" + location.hostname + ":" + location.port +
+    socket = new WebSocket("ws://" + location.hostname + ":" + location.port +
         "/chess");
     socket.addEventListener('message', function (event) {
         onMessage(event);
@@ -365,8 +395,9 @@ window.onload = function() {
 
 /**
  * Event listener to take action when the page is fully loaded.
+ * Can pass event as an argument if needed, but wasn't needed for the current implementation.
  */
-window.addEventListener('load', (event) => {
+window.addEventListener('load', () => {
     console.log('page is fully loaded');
 });
 
@@ -385,8 +416,6 @@ document.addEventListener('DOMContentLoaded', function () {
  */
 function onMessage(msg) {
     let obj = JSON.parse(msg.data);
-    let log = document.getElementById('scrollBox');
-    let blank_log;
     let connectString
 
     switch(obj.type) {
@@ -394,20 +423,12 @@ function onMessage(msg) {
             initialDrawBoard();
             connectString = obj.name + " Connected";
             insertConnectionMessage(connectString);
-            //log.innerHTML += "<p class='log'>" + obj.name + " Connected<\p>";
-            //blank_log = document.querySelector(".scrollBox p:nth-last-child(1)");
-            //blank_log.remove();
-            //log.scrollTop = log.scrollHeight;
             break;
         case "spectator_join":
             if (!isLightPlayer && !isDarkPlayer) isSpectator = true;
             gameStarted = true;
             connectString = obj.name + " Connected as Spectator";
             insertConnectionMessage(connectString);
-            //log.innerHTML += "<p class='log'>" + obj.name + " Connected as Spectator<\p>";
-            //blank_log = document.querySelector(".scrollBox p:nth-last-child(1)");
-            //blank_log.remove();
-            //log.scrollTop = log.scrollHeight;
             break;
         case "start_game":
             gameStarted = true; //set the game status to start playing.
@@ -548,7 +569,7 @@ function onConnect(event) {
  * @param moveString
  */
 function addUpdateToLog(moveString) {
-    if (moveString == "void") return;  //Empty position update for manual joining update of a spectator.
+    if (moveString === "void") return;  //Empty position update for manual joining update of a spectator.
     let log = document.getElementById('scrollBox');
     let blank_log;
     //If own turn, we need to first remove the tentative update.
@@ -596,13 +617,11 @@ async function updateBoard_piece(gameMsg) {
 
     //Load and draw the pieces
     gameMsg.lightPieces.forEach(function (obj) {
-        //app.drawPiece(obj.image, calcBoardX(obj.boardLoc), calcBoardY(obj.boardLoc));
         pieces.push([obj.image, calcBoardX(obj.boardLoc), calcBoardY(obj.boardLoc), obj.boardLoc]);
         app.loadAndDrawImg(obj.image, calcBoardX(obj.boardLoc), calcBoardY(obj.boardLoc));
     });
 
     gameMsg.darkPieces.forEach(function (obj) {
-        //app.drawPiece(obj.image, calcBoardX(obj.boardLoc), calcBoardY(obj.boardLoc));
         app.loadAndDrawImg(obj.image, calcBoardX(obj.boardLoc), calcBoardY(obj.boardLoc));
         pieces.push([obj.image, calcBoardX(obj.boardLoc), calcBoardY(obj.boardLoc), obj.boardLoc]);
     });
@@ -641,22 +660,6 @@ function initialDrawBoard() {
     console.log("draw board");
     app.clear();
     app.drawBoard();
-}
-
-/**
- * Pass along the canvas dimensions
- */
-function canvasDims() {
-    $.post("/canvas/dims", {height: app.dims.height, width: app.dims.width});
-}
-
-/**
- * Clear the canvas
- */
-function clear() {
-    $.get("/clear");
-    app.clear();
-    $("#objectSelect").empty();
 }
 
 /**
@@ -723,6 +726,13 @@ function returnClickPosition(e) {
 let X, Y;
 let needForRAF = true;
 
+/**
+ * Function: Move Mouse
+ * RequestAnimationFrame harness that redraws all piece positions when the mouse is moved within the canvas
+ * (if a piece is selected).
+ * Using requestAnimationFrame so limit the framerate that the browser draws at to 60 FPS.
+ * @param e The Eventlistener event.
+ */
 function moveMouse(e) {
     if (moveOrigin == null || moveDestination != null || mouseMoveInterval-- > 0) return;  //take no action if no move is selected.
 
@@ -736,6 +746,11 @@ function moveMouse(e) {
 
 }
 
+/**
+ * Function: Move Mouse Update Canvas
+ * Callback function to re-draw all pieces in the current move array as mouse is moved.
+ * @param timestamp The timestamp, if needed.
+ */
 function mouseMoveUpdateCanvas(timestamp) {
     needForRAF = true;
     //mouseMoveInterval = mouseDelaySetting;
@@ -751,7 +766,7 @@ function mouseMoveUpdateCanvas(timestamp) {
 
     let i = 0;
     pieces.forEach(function (obj) {
-        if (obj[3] != moveOrigin)
+        if (obj[3] !== moveOrigin)
             //app.drawPiece(obj[0], obj[1], obj[2]);
             app.drawImgOnly(pieceImages[i], obj[1], obj[2])
         else
@@ -760,6 +775,11 @@ function mouseMoveUpdateCanvas(timestamp) {
     });
 }
 
+/**
+ * Function: Reset Piece Positions.
+ * Reset all piece positions if the pieces have been redrawn (due to a piece selection) but followed
+ * by an error.
+ */
 function resetPiecePositions() {
     //mouseMoveInterval = mouseDelaySetting;
     //Re-draw the board, squares, and pieces
@@ -855,7 +875,6 @@ function sendMessage(str) {
     socket.send(msg);
 }
 
-
 /**
  * Function: Send Heart Beat
  * Helper function to send a heartbeat message to the server.
@@ -875,7 +894,6 @@ function sendHeartBeat () {
 function requestResign () {
     if (!trueIfTurn()) return;
     sendMessage("request_resign");
-    return;
 }
 
 /**
@@ -888,7 +906,6 @@ function requestResign () {
 function requestDraw() {
     if (!trueIfTurn()) return;
     sendMessage("request_draw");
-    return;
 }
 
 /**

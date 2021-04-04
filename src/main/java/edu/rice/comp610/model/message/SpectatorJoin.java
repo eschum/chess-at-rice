@@ -20,7 +20,7 @@ public class SpectatorJoin extends Message {
 
     /**
      * Set Name: Helper function to set the name of the player.
-     * @param n
+     * @param n A String of the name of the spectator.
      */
     public void setName(String n) {
         name = n;

@@ -21,7 +21,6 @@ public class Player implements PropertyChangeListener{
     /**
      * Public constructor to instantiate a player.
      * This version is when we already have a session.
-     *
      * This is mostly used in testing only.
      * @param userName A string of the user identifier.
      * @param userSession The session of the connecting user.
@@ -36,7 +35,7 @@ public class Player implements PropertyChangeListener{
      * Method: Property Change
      * Implement propertyChange from Interface PropertyChangeListener. Send messages and updates
      * as required by the game.
-     * @param evt
+     * @param evt The Event from the PropertyChangeSupport
      */
     public void propertyChange(PropertyChangeEvent evt) {
         if (!evt.getPropertyName().equals("broadcast")) return;  //Only the "broadcast" event is implemented.

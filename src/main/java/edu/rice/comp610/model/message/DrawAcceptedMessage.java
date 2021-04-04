@@ -8,8 +8,8 @@ import edu.rice.comp610.model.game.Player;
  * that a player has resigned.
  */
 public class DrawAcceptedMessage extends Message {
-    private String name;
-    private String content;
+    private final String name;
+    private final String content;
 
     /**
      * Public Constructor

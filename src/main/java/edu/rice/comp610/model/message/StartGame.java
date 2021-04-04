@@ -9,6 +9,10 @@ import java.util.ArrayList;
  * Message with all the contents to initialize the game in the View of each player.
  */
 public class StartGame extends Message {
+    /*
+    Cannot convert the fields to local variables because
+    they will be referenced in the View.
+     */
     private final ArrayList<Piece> lightPieces;
     private final ArrayList<Piece> darkPieces;
     private final boolean lightPlayer;

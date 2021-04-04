@@ -10,6 +10,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 
+/**
+ * Class: Web Socket Controller
+ * Define behavior for incoming websocket connections in the Chess@Rice platform.
+ */
 @WebSocket
 public class WebSocketController {
     DispatchAdapter da;
@@ -44,7 +48,7 @@ public class WebSocketController {
     public void onClose(Session userSession, int statusCode, String reason) {
         //We are not concerned about the reason, but only that a user has left.
         //Delegate to the Dispatch Adapter
-        da.handleClose(userSession, null);
+        DispatchAdapter.handleClose(userSession, null);
     }
 
     /**
